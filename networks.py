@@ -7,16 +7,21 @@ import tensorflow as tf
 from tensorflow.keras.callbacks import CSVLogger
 from tensorflow.keras.preprocessing.image import array_to_img
 
-from adversarials import manipulate_data
 from preprocessing import get_dataset, signnames
-from report import Report
 
 sys.path.append(os.getcwd())
 
 LAMBDA = 0.0
+RESULT_ROOT = "results"
+TRAIN_PATH = "res\\train\\Final_Training\\Images\\"
+TEST_PATH = "res\\test\\Final_Test\\Images\\"
+TEST_LABELS_PATH = "res\\test\\Final_Test\\GT-final_test.csv"
+IMG_SIZE = 64
+
 # MIT-license: https://github.com/MaximilianIdahl/gtsrb-models-keras
 
-def plot_labeled_images(rows, cols, images, labels, gray=False):
+
+def plot_labeled_images(rows, cols, images, labels):
     title_font_size = 8
 
     fig, axs = plt.subplots(nrows=rows, ncols=cols)
@@ -25,15 +30,44 @@ def plot_labeled_images(rows, cols, images, labels, gray=False):
         for c in range(cols):
             i = c * rows + r
             ax = axs[r, c]
-            if gray:
-                ax.imshow(array_to_img(images[i] * 255), cmap='gray')
-            else:
-                ax.imshow(array_to_img(images[i] * 255))
+            ax.imshow(array_to_img(images[i] * 255))
             ax.axis('off')
             ax.set_title(signnames[np.argmax(labels[i])])
             ax.title.set_fontsize(title_font_size)
 
     plt.show()
+
+
+def prepare_data_and_model(architecture, method):
+    result_folder = os.path.join(RESULT_ROOT, method)
+
+    if not os.path.exists(result_folder):
+        os.makedirs(result_folder)
+
+    print("Load and create dataset from file...")
+    xtrain, ytrain, xtest, ytest = get_dataset(TRAIN_PATH, TEST_PATH, TEST_LABELS_PATH, (IMG_SIZE, IMG_SIZE))
+    num_classes = np.unique(ytrain).size
+    # one-hot result vector encoding
+    from keras.utils import np_utils
+    ytrain = np_utils.to_categorical(ytrain, num_classes=num_classes)
+    ytest = np_utils.to_categorical(ytest, num_classes=num_classes)
+
+    model_input_shape = xtrain[0].shape
+    model = None
+
+    # train model
+    if architecture == 'vgg19':
+        model = build_vgg19(num_classes, model_input_shape)
+    elif architecture == 'lenet-5':
+        model = build_lenet5(num_classes, model_input_shape)
+    elif architecture == 'alex':
+        model = build_alexnet(num_classes, model_input_shape)
+    elif architecture == 'resnet50':
+        model = build_resnet50(num_classes, model_input_shape)
+
+    train_model(model, xtrain, ytrain, xtest, ytest, modelpath=architecture + "model.h5", result_folder=result_folder)
+
+    return model, xtrain, ytrain, xtest, ytest, result_folder
 
 
 def build_resnet50(num_classes, img_size):
@@ -158,7 +192,7 @@ def measure_input_gradient(model, x, y):
 
     return
 
-
+# best lambda found: 0.2 (alex)
 def get_regularization_loss(model):
 
     def penalized_loss(target, output):
@@ -268,193 +302,6 @@ def try_attack_params(model, x, y):
         x[0] = x_adv[0]
 
 
-def make_confusion_matrix(labels, model, x, y, reps=10, eps=0.03):
-    from adversarials import test_FGM_params
-
-    n = len(labels)
-
-    preds = model.predict(x, batch_size=1024)
-
-    inputs = []
-    targets = []
-    for label in labels:
-        for i in range(len(x)):
-            if label == np.argmax(y[i]) and label == np.argmax(preds[i]):
-                inputs.append(np.repeat([x[i]], n, 0))
-                targets.append(y[i])
-                break
-
-    inputs = np.array(inputs)
-    targets = np.array(targets)
-
-    reps = 10
-    eps = 0.03
-
-    fig, axs = plt.subplots(nrows=n, ncols=n)
-
-    for r in range(n):
-        adv_x = inputs[r]
-        for i in range(reps):
-            adv_x = test_FGM_params(model,  adv_x, targets, eps)
-        for c in range(n):
-            ax = axs[r, c]
-            ax.axis('off')
-
-            if c != r:
-                ax.imshow(adv_x[c])
-            else:
-                ax.imshow(inputs[r,c])
-    plt.show()
-
-
 
 # end experimental code
 
-
-def main(architecture, train_path, test_path, test_labels_path, img_size, result_folder, method):
-
-    #todo: remove randomness for reproducability
-    # tf.random.set_random_seed(1234)
-
-    result_folder = os.path.join(result_folder, method)
-
-    if not os.path.exists(result_folder):
-        os.makedirs(result_folder)
-
-    print("Load and create dataset from file...")
-    xtrain, ytrain, xtest, ytest = get_dataset(train_path, test_path, test_labels_path, (img_size, img_size))
-    num_classes = np.unique(ytrain).size
-    # one-hot result vector encoding
-    from keras.utils import np_utils
-    ytrain = np_utils.to_categorical(ytrain, num_classes=num_classes)
-    ytest = np_utils.to_categorical(ytest, num_classes=num_classes)
-
-    model_input_shape = xtrain[0].shape
-    model = None
-    # train model
-    if architecture == 'vgg19':
-        model = build_vgg19(num_classes, model_input_shape)
-    elif architecture == 'lenet-5':
-        model = build_lenet5(num_classes, model_input_shape)
-    elif architecture == 'alex':
-        model = build_alexnet(num_classes, model_input_shape)
-    elif architecture == 'resnet50':
-        model = build_resnet50(num_classes, model_input_shape)
-
-        model.evaluate()
-
-    train_model(model, xtrain, ytrain, xtest, ytest, modelpath=architecture + "model.h5", result_folder=result_folder)
-
-    make_confusion_matrix([0, 1, 2, 3], model, xtest, ytest)
-
-    model(model.input)
-
-    try_attack_params(model, xtest, ytest)
-
-    report = Report(os.path.join(result_folder, architecture))
-
-    for run in range(15):
-
-        y_adv_test_target = create_target_vector(ytest)
-        x_adv_test = manipulate_data(xtest, model, method,
-                                     os.path.join("res", "adv", "test", architecture, str(run)), y_adv_test_target)
-
-        report.evaluate_accuracies(model, xtest, ytest, architecture, run)
-
-        y_adv_train_target = create_target_vector(ytrain)
-        x_adv_train = manipulate_data(xtrain, model, method,
-                                      os.path.join("res", "adv", "train", architecture, str(run)), y_adv_train_target)
-
-        y_adv_test = model.predict(x_adv_test)
-
-        report.add_data_before(model, xtest, ytest, x_adv_test, y_adv_test)
-
-        xtrain = np.concatenate((xtrain, x_adv_train))
-        ytrain = np.concatenate((ytrain, ytrain))
-
-        train_model(model, xtrain, ytrain, xtest, ytest, modelpath=architecture + str(run) + "_adv.h5",
-                    result_folder=result_folder)
-
-        report.add_data_after(model, xtest, x_adv_test)
-
-        report.report()
-
-        xtrain = xtrain[:int(len(xtrain) / 2)]
-        ytrain = ytrain[:int(len(ytrain) / 2)]
-
-
-if __name__ == "__main__":
-    import sys, argparse
-
-    argv = sys.argv[1:]
-    usage_text = "Run as " + __file__ + " [options]"
-    parser = argparse.ArgumentParser(description=usage_text)
-    parser.add_argument(
-        "-a", "--architecture", dest="architecture", required=True,
-        choices=['alex', 'vgg19', 'resnet50', 'lenet-5'],
-        help="model architecture for training. \nOptions: ['alex', 'vgg19', 'resnet50', 'lenet-5']"
-    )
-    parser.add_argument(
-        "-t", "--train_path", dest="train_path", type=str, required=False,
-        default="res\\train\\Final_Training\\Images\\",
-        help="Input directory for train set"
-    )
-    parser.add_argument(
-        "-v", "--validation_path", dest="validation_path", type=str, required=False,
-        help="Input directory for test/validation set",
-        default="res\\test\\Final_Test\\Images\\"
-    )
-    parser.add_argument(
-        "-l", "--validation_labels", dest="validation_labels", type=str, required=False,
-        help="Path to GT-final_test.csv file",
-        default="res\\test\\Final_Test\\GT-final_test.csv"
-    )
-    parser.add_argument(
-        "-i", "--img_dim", dest="img_dim", type=int, required=False,
-        default=64,
-        help="Image width and height in pixel"
-    )
-    parser.add_argument(
-        "-r", "--result_folder", dest="result_folder", type=str, required=False,
-        default="results",
-        help="Output directory"
-    )
-    parser.add_argument(
-        "-m", "--method", dest="method", type=str, required=False,
-        choices=['FGSM', 'GAUSSIAN'],
-        default="FGSM",
-        help="choose from FGSM, GAUSSIAN"
-    )
-
-
-    def str2bool(v):
-        if v.lower() in ('yes', 'true', 't', 'y', '1'):
-            return True
-        elif v.lower() in ('no', 'false', 'f', 'n', '0'):
-            return False
-        else:
-            raise argparse.ArgumentTypeError('Boolean value expected.')
-    parser.add_argument(
-        "-g", "--grayscale", dest="gs", type=str2bool, default="false", help="Train only on grayscale images"
-    )
-
-    if not argv:
-        print("Some required argument is missing")
-    args = parser.parse_args(argv)
-    # result directory
-    if not os.path.exists(args.result_folder):
-        os.mkdir(args.result_folder)
-    if not os.path.exists(args.train_path):
-        raise IOError("Cannot read directory {}".format(args.train_path))
-    if not os.path.exists(args.train_path):
-        raise IOError("Cannot read directory {}".format(args.validation_path))
-    if not os.path.exists(args.train_path):
-        raise IOError("Cannot read file {}".format(args.validation_labels))
-
-    main(args.architecture,
-         args.train_path,
-         args.validation_path,
-         args.validation_labels,
-         args.img_dim,
-         args.result_folder,
-         args.method)
