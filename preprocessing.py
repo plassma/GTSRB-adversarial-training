@@ -3,6 +3,25 @@ import numpy as np
 from tensorflow.python.keras.preprocessing.image import load_img, img_to_array
 
 
+def get_signname_dict():
+    import csv
+    with open("res\\signnames.csv") as csv_file:
+        reader = csv.reader(csv_file, delimiter=",")
+        i = 0
+
+        result = {}
+
+        for line in reader:
+            if i > 0:
+                result[i - 1] = line[1]
+            i += 1
+
+    return result
+
+
+signnames = get_signname_dict()
+
+
 def process_image(img, img_size, grayscale=False):
     """
     Loads an image from file, resize to img_size and return as numpy array.
@@ -21,7 +40,7 @@ def process_image(img, img_size, grayscale=False):
     return img
 
 
-def get_dataset(train_path, test_path, test_labels_path, img_size, grayscale):
+def get_dataset(train_path, test_path, test_labels_path, img_size, grayscale=False):
     """
     Builds the dataset from file.
     :param grayscale: set True to use grayscale images

@@ -4,74 +4,20 @@ import sys
 import matplotlib.pyplot as plt
 import numpy as np
 import tensorflow as tf
-from cleverhans.attacks import FastGradientMethod
-from cleverhans.utils_keras import KerasModelWrapper
-from cleverhans.evaluation import batch_eval
-from tensorflow import keras
-from tensorflow.python.keras.callbacks import CSVLogger
-from tensorflow.python.keras.preprocessing.image import array_to_img
+from tensorflow.keras.callbacks import CSVLogger
+from tensorflow.keras.preprocessing.image import array_to_img
 
-from preprocessing import get_dataset
+from adversarials import manipulate_data
+from preprocessing import get_dataset, signnames
+from report import Report
 
 sys.path.append(os.getcwd())
 
+LAMBDA = 0.0
 # MIT-license: https://github.com/MaximilianIdahl/gtsrb-models-keras
 
-model_path = 'results\\model.h5'
-
-
-def get_adversarial_acc_metric(model, fgsm, fgsm_params):
-    def adv_acc(y, _):
-        # Generate adversarial examples
-        x_adv = fgsm.generate(model.input, **fgsm_params)
-        # Consider the attack to be constant
-        x_adv = tf.stop_gradient(x_adv)
-
-        # Accuracy on the adversarial examples
-        preds_adv = model(x_adv)
-        return keras.metrics.categorical_accuracy(y, preds_adv)
-
-    return adv_acc
-
-
-def get_adversarial_loss(model, fgsm, fgsm_params):
-    def adv_loss(y, preds):
-        # Cross-entropy on the legitimate examples
-        cross_ent = keras.losses.categorical_crossentropy(y, preds)
-
-        # Generate adversarial examples
-        x_adv = fgsm.generate(model.input, **fgsm_params)
-        # Consider the attack to be constant
-        x_adv = tf.stop_gradient(x_adv)
-
-        # Cross-entropy on the adversarial examples
-        preds_adv = model(x_adv)
-        cross_ent_adv = keras.losses.categorical_crossentropy(y, preds_adv)
-
-        return 0.5 * cross_ent + 0.5 * cross_ent_adv
-
-    return adv_loss
-
-def get_signname_dict():
-    import csv
-    with open("res\\signnames.csv") as csv_file:
-        reader = csv.reader(csv_file, delimiter=",")
-        i = 0
-
-        result = {}
-
-        for line in reader:
-            if i > 0:
-                result[i - 1] = line[1]
-            i += 1
-
-    return result
-
-
-def plot_labeled_images(rows, cols, images, labels, gray):
+def plot_labeled_images(rows, cols, images, labels, gray=False):
     title_font_size = 8
-
-    signnames = get_signname_dict()
 
     fig, axs = plt.subplots(nrows=rows, ncols=cols)
 
@@ -90,37 +36,10 @@ def plot_labeled_images(rows, cols, images, labels, gray):
     plt.show()
 
 
-def plot(history, result_folder):
-    # Plot training & validation accuracy values
-    plt.clf()
-    plt.plot(history.history['acc'])
-    plt.plot(history.history['val_acc'])
-    plt.title('Model accuracy')
-    plt.ylabel('Accuracy')
-    plt.xlabel('Epoch')
-    plt.legend(["Train (max = {0:.2f})".format(100 * max(history.history["acc"])),
-                "Test (max = {0:.2f})".format(100 * max(history.history["val_acc"]))], loc='upper left')
-    plt.grid(True)
-    plt.xticks(range(0, len(history.history['acc'])))
-    plt.savefig(os.path.join(result_folder, "model_acc.svg"), format="svg", dpi=1000, bbox_inches='tight')
-
-    # Plot training & validation loss values
-    plt.clf()
-    plt.plot(history.history['loss'])
-    plt.plot(history.history['val_loss'])
-    plt.title('Model loss')
-    plt.ylabel('Loss')
-    plt.xlabel('Epoch')
-    plt.legend(['Train', 'Test'], loc='upper left')
-    plt.grid(True)
-    plt.xticks(range(0, len(history.history['acc'])))
-    plt.savefig(os.path.join(result_folder, "model_loss.svg"), format="svg", dpi=1000, bbox_inches='tight')
-
-
 def build_resnet50(num_classes, img_size):
-    from tensorflow.python.keras.applications import ResNet50
-    from tensorflow.python.keras import Model
-    from tensorflow.python.keras.layers import Dense, Flatten
+    from tensorflow.keras.applications import ResNet50
+    from tensorflow.keras import Model
+    from tensorflow.keras.layers import Dense, Flatten
     resnet = ResNet50(weights='imagenet', include_top=False, input_shape=img_size)
     x = Flatten(input_shape=resnet.output.shape)(resnet.output)
     x = Dense(1024, activation='sigmoid')(x)
@@ -130,9 +49,9 @@ def build_resnet50(num_classes, img_size):
 
 
 def build_vgg19(num_classes, img_size):
-    from tensorflow.python.keras.applications import VGG19
-    from tensorflow.python.keras import Model
-    from tensorflow.python.keras.layers import Dense, Flatten
+    from tensorflow.keras.applications import VGG19
+    from tensorflow.keras import Model
+    from tensorflow.keras.layers import Dense, Flatten
     vgg19 = VGG19(weights='imagenet', include_top=False, input_shape=img_size)
     # customize last layers
     x = Flatten(input_shape=vgg19.output.shape)(vgg19.output)
@@ -146,8 +65,8 @@ def build_vgg19(num_classes, img_size):
 
 
 def build_lenet5(num_classes, img_size):
-    from tensorflow.python.keras import Sequential
-    from tensorflow.python.keras.layers import Conv2D, AveragePooling2D, Flatten, Dense
+    from tensorflow.keras import Sequential
+    from tensorflow.keras.layers import Conv2D, AveragePooling2D, Flatten, Dense
     model = Sequential()
     model.add(Conv2D(filters=6, kernel_size=(3, 3), activation='relu', input_shape=img_size))
     model.add(AveragePooling2D())
@@ -167,8 +86,8 @@ def build_alexnet(num_classes, img_size):
     :param img_size: image size as tuple (width, height, 3) for rgb and (widht, height) for grayscale
     :return: model
     """
-    from tensorflow.python.keras import Sequential
-    from tensorflow.python.keras.layers import Conv2D, MaxPooling2D, Dropout, Flatten, Dense
+    from tensorflow.keras import Sequential
+    from tensorflow.keras.layers import Conv2D, MaxPooling2D, Dropout, Flatten, Dense
     model = Sequential()
     model.add(Conv2D(32, (3, 3), padding='same',
                      input_shape=img_size,
@@ -195,10 +114,96 @@ def build_alexnet(num_classes, img_size):
 
 def lr_schedule(epoch):
     # decreasing learning rate depending on epoch
-    return 0.001 * (0.1 ** int(epoch / 10))
+    return 0.001 * (0.1 ** int(epoch / 15))#todo: val is 10 not 15
 
 
-def train_model(model, xtrain, ytrain, xtest, ytest, load = False, lr=0.001,
+def measure_input_gradient(model, x, y):
+
+    y_placeholder = tf.placeholder(tf.float32, shape=(None, 43))
+
+    epsilon = tf.constant(tf.keras.backend.epsilon(), model.output.dtype.base_dtype)
+    output = model(model.input) / tf.reduce_sum(model(model.input), -1, True)
+    output = tf.clip_by_value(output, epsilon, 1. - epsilon)
+
+    temp = -y_placeholder * tf.log(output)
+
+    categorical_crossentropy = tf.reduce_sum(temp, -1)
+
+    grad = tf.gradients(temp, model.input)[0]
+
+    sum_grad = tf.reduce_sum(grad, [1,2,3])
+
+    sum_grad2 = tf.square(sum_grad)
+
+    sess = tf.keras.backend.get_session()
+
+    batch_size = 512
+    ces = []
+
+    for i in range(int(len(x) / batch_size) + 1):
+        ces.extend(categorical_crossentropy.eval(session=sess, feed_dict={model.input:   x[i * batch_size:min((i + 1) * batch_size, len(x))],
+                                             y_placeholder: y[i * batch_size:min((i + 1) * batch_size, len(x))]}))
+
+    print("avg categorical crossentropy: ", np.average(ces))
+
+    pens = []
+    for i in range(int(len(x) / batch_size) + 1):
+        pens.extend(sum_grad2.eval(session=sess, feed_dict={model.input:   x[i * batch_size:min((i + 1) * batch_size, len(x))],
+                                             y_placeholder: y[i * batch_size:min((i + 1) * batch_size, len(x))]}))
+    print("avg input gradient: ", np.average(pens))
+
+    losses = np.multiply(pens, LAMBDA) + ces
+
+    print("avg loss: ", np.average(losses))
+
+    return
+
+
+def get_regularization_loss(model):
+
+    def penalized_loss(target, output):
+
+        # scale preds so that the class probas of each sample sum to 1
+        output = output / tf.reduce_sum(output, -1, True)
+        epsilon_ = tf.constant(tf.keras.backend.epsilon(), output.dtype.base_dtype)
+        output = tf.clip_by_value(output, epsilon_, 1. - epsilon_)
+
+        temp = -target * tf.log(output)
+
+        categorical_crossentropy = tf.reduce_sum(temp, -1) # shape: (?,)
+
+        grad = tf.gradients(categorical_crossentropy, model.input)[0]
+        grad2 = tf.square(grad)
+
+        sum_dim = tf.reduce_sum(grad2, [1,2,3])
+
+        return categorical_crossentropy + LAMBDA * sum_dim
+
+    return penalized_loss
+
+
+def eval_adv_acc(model, x, y):
+    from adversarials import generate_adversarials_cleverhans
+
+    SAMPLES = 200
+
+    x_adv = generate_adversarials_cleverhans(model, x[:SAMPLES], y[:SAMPLES])
+
+    acc = model.evaluate(x_adv, y[:SAMPLES], batch_size=1024, verbose=0)
+
+    plot_labeled_images(3, 3, x_adv, model.predict(x_adv))
+
+    count = 0
+
+    for i in range(len(x_adv)):
+        count += x_adv[i][0][0][0] != x_adv[i][0][0][0]
+
+    print("not found adv for: ", count)
+
+    return
+
+
+def train_model(model, xtrain, ytrain, xtest, ytest, modelpath, lr=0.001,
                 batch_size=32, epochs=10, result_folder=""):
     """
     Trains a CNN for a given dataset
@@ -213,51 +218,114 @@ def train_model(model, xtrain, ytrain, xtest, ytest, load = False, lr=0.001,
     :param result_folder: Save trained model to this directory
     :return: None
     """
-    from tensorflow.python.keras.optimizers import SGD
-    from tensorflow.python.keras.callbacks import LearningRateScheduler, ModelCheckpoint
+    from tensorflow.keras.optimizers import SGD
+    from tensorflow.keras.callbacks import LearningRateScheduler, ModelCheckpoint
+
     sgd = SGD(lr=lr, decay=1e-6, momentum=0.9, nesterov=True)
 
-    loss = 'categorical_crossentropy'
+    loss = get_regularization_loss(model)# 'categorical_crossentropy' #
 
-    checkpoint = ModelCheckpoint(os.path.join(result_folder, "model.h5"), save_best_only=True)
+    modelpath = os.path.join(result_folder, modelpath)
+
+    checkpoint = ModelCheckpoint(modelpath, save_best_only=True)
     csv_logger = CSVLogger(os.path.join(result_folder, "training.log"), separator=",", append=True)
 
     model.compile(loss=loss, optimizer=sgd, metrics=['accuracy'])
 
-    if load:
-        model.load_weights(model_path)
+    if os.path.exists(modelpath) and os.path.isfile(modelpath):
+        model.load_weights(modelpath)
     else:
-        history = model.fit(xtrain, ytrain,
-            batch_size=batch_size,
-            validation_data=(xtest, ytest),
-            epochs=epochs,
-            callbacks=[LearningRateScheduler(lr_schedule), csv_logger, checkpoint])
-
-    # plot(history, result_folder)
+        model.fit(xtrain, ytrain,
+                  batch_size=batch_size,
+                  validation_data=(xtest, ytest),
+                  epochs=epochs,
+                  callbacks=[LearningRateScheduler(lr_schedule), csv_logger, checkpoint])
 
 
-def generate_adversarial_inputs(x_in, fgsm, fgsm_params):
-    x_in = x_in.astype('float32') # todo: exchange float64
+# begin experimental code
 
-    x = tf.placeholder(tf.float32, shape=(None, 64, 64, 3))
-
-    x_adv = fgsm.generate(x, **fgsm_params)
-    x_adv = tf.stop_gradient(x_adv)
-    eval_params = {'batch_size': 128}
-    with tf.Session() as sess:
-        sess.run(tf.global_variables_initializer())
-        adv_images = batch_eval(sess, [x], [x_adv], [x_in], args=eval_params)[0]
-
-    return adv_images
+def create_target_vector(labels):
+    first = labels[0]
+    labels = labels[1:]
+    return np.concatenate((labels, [first]))
 
 
-def main(architecture, train_path, test_path, test_labels_path, img_size, result_folder, grayscale):
+def try_attack_params(model, x, y):
+    from adversarials import test_FGM_params
+
+    ytarget = np.zeros((1, 43))
+    ytarget[0][8] = 1
+
+    eps_iter = 0.02
+
+    while True:
+        x_adv = test_FGM_params(model, x[:1], ytarget, eps_iter)
+
+        plt.imshow(x_adv[0])
+        plt.show()
+        print("label: ", np.argmax(model.predict(x_adv)))
+
+        x[0] = x_adv[0]
+
+
+def make_confusion_matrix(labels, model, x, y, reps=10, eps=0.03):
+    from adversarials import test_FGM_params
+
+    n = len(labels)
+
+    preds = model.predict(x, batch_size=1024)
+
+    inputs = []
+    targets = []
+    for label in labels:
+        for i in range(len(x)):
+            if label == np.argmax(y[i]) and label == np.argmax(preds[i]):
+                inputs.append(np.repeat([x[i]], n, 0))
+                targets.append(y[i])
+                break
+
+    inputs = np.array(inputs)
+    targets = np.array(targets)
+
+    reps = 10
+    eps = 0.03
+
+    fig, axs = plt.subplots(nrows=n, ncols=n)
+
+    for r in range(n):
+        adv_x = inputs[r]
+        for i in range(reps):
+            adv_x = test_FGM_params(model,  adv_x, targets, eps)
+        for c in range(n):
+            ax = axs[r, c]
+            ax.axis('off')
+
+            if c != r:
+                ax.imshow(adv_x[c])
+            else:
+                ax.imshow(inputs[r,c])
+    plt.show()
+
+
+
+# end experimental code
+
+
+def main(architecture, train_path, test_path, test_labels_path, img_size, result_folder, method):
+
+    #todo: remove randomness for reproducability
+    # tf.random.set_random_seed(1234)
+
+    result_folder = os.path.join(result_folder, method)
+
+    if not os.path.exists(result_folder):
+        os.makedirs(result_folder)
 
     print("Load and create dataset from file...")
-    xtrain, ytrain, xtest, ytest = get_dataset(train_path, test_path, test_labels_path, (img_size, img_size), grayscale)
+    xtrain, ytrain, xtest, ytest = get_dataset(train_path, test_path, test_labels_path, (img_size, img_size))
     num_classes = np.unique(ytrain).size
     # one-hot result vector encoding
-    from tensorflow.python.keras.utils import np_utils
+    from keras.utils import np_utils
     ytrain = np_utils.to_categorical(ytrain, num_classes=num_classes)
     ytest = np_utils.to_categorical(ytest, num_classes=num_classes)
 
@@ -273,44 +341,46 @@ def main(architecture, train_path, test_path, test_labels_path, img_size, result
     elif architecture == 'resnet50':
         model = build_resnet50(num_classes, model_input_shape)
 
-    train_model(model, xtrain, ytrain, xtest, ytest)
+        model.evaluate()
+
+    train_model(model, xtrain, ytrain, xtest, ytest, modelpath=architecture + "model.h5", result_folder=result_folder)
+
+    make_confusion_matrix([0, 1, 2, 3], model, xtest, ytest)
 
     model(model.input)
 
-    wrap = KerasModelWrapper(model)
-    fgsm = FastGradientMethod(wrap)
-    fgsm_params = {'eps': 0.3,
-                   'clip_min': 0.,
-                   'clip_max': 1.}
+    try_attack_params(model, xtest, ytest)
 
-    x_adv_series = []
+    report = Report(os.path.join(result_folder, architecture))
 
-    for i in range(100):
+    for run in range(15):
 
-        x_adv_train = generate_adversarial_inputs(xtrain, fgsm, fgsm_params).astype('float64')
-        x_adv_test = generate_adversarial_inputs(xtest, fgsm, fgsm_params).astype('float64')
+        y_adv_test_target = create_target_vector(ytest)
+        x_adv_test = manipulate_data(xtest, model, method,
+                                     os.path.join("res", "adv", "test", architecture, str(run)), y_adv_test_target)
 
-        x_adv_series.extend([x_adv_test[0]])
+        report.evaluate_accuracies(model, xtest, ytest, architecture, run)
 
-        xtrain = np.concatenate([xtrain, x_adv_train])
-        ytrain = np.concatenate([ytrain, ytrain])
+        y_adv_train_target = create_target_vector(ytrain)
+        x_adv_train = manipulate_data(xtrain, model, method,
+                                      os.path.join("res", "adv", "train", architecture, str(run)), y_adv_train_target)
 
-        train_model(model, xtrain, ytrain, xtest, ytest, lr=0.001, batch_size=32, epochs=10,
-                result_folder=result_folder)
+        y_adv_test = model.predict(x_adv_test)
 
-        print("accuracy on test examples: ", model.evaluate(xtest, ytest, 1024, 0))
-        print("accuracy on adversary test examples: ", model.evaluate(x_adv_test, ytest, 1024, 0))
+        report.add_data_before(model, xtest, ytest, x_adv_test, y_adv_test)
 
-        y_adv = model.predict(x_adv_test, batch_size=1024)
+        xtrain = np.concatenate((xtrain, x_adv_train))
+        ytrain = np.concatenate((ytrain, ytrain))
 
-        plot_labeled_images(3, 3, xtest, ytest, grayscale)
-        plot_labeled_images(3, 3, x_adv_test, y_adv, grayscale)
+        train_model(model, xtrain, ytrain, xtest, ytest, modelpath=architecture + str(run) + "_adv.h5",
+                    result_folder=result_folder)
 
-        xtrain = xtrain[0:int(len(xtrain) / 2)]
-        ytrain = ytrain[0:int(len(ytrain) / 2)]
+        report.add_data_after(model, xtest, x_adv_test)
 
-        wrap = KerasModelWrapper(model)
-        fgsm = FastGradientMethod(wrap)
+        report.report()
+
+        xtrain = xtrain[:int(len(xtrain) / 2)]
+        ytrain = ytrain[:int(len(ytrain) / 2)]
 
 
 if __name__ == "__main__":
@@ -346,8 +416,14 @@ if __name__ == "__main__":
     )
     parser.add_argument(
         "-r", "--result_folder", dest="result_folder", type=str, required=False,
-        default="results/",
+        default="results",
         help="Output directory"
+    )
+    parser.add_argument(
+        "-m", "--method", dest="method", type=str, required=False,
+        choices=['FGSM', 'GAUSSIAN'],
+        default="FGSM",
+        help="choose from FGSM, GAUSSIAN"
     )
 
 
@@ -361,8 +437,6 @@ if __name__ == "__main__":
     parser.add_argument(
         "-g", "--grayscale", dest="gs", type=str2bool, default="false", help="Train only on grayscale images"
     )
-
-
 
     if not argv:
         print("Some required argument is missing")
@@ -383,4 +457,4 @@ if __name__ == "__main__":
          args.validation_labels,
          args.img_dim,
          args.result_folder,
-         args.gs)
+         args.method)
