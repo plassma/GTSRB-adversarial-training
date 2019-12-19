@@ -1,6 +1,6 @@
 from networks import *
 from report import Report
-from adversarials import manipulate_data
+from adversarials import get_manipulated_data
 
 
 def confusion_matrix(labels, architecture, method):
@@ -10,25 +10,26 @@ def confusion_matrix(labels, architecture, method):
     plot_confusion_matrix(labels, model, xtest, ytest)
 
 
-def iterative_adversarial_training(architecture, method):
+def iterative_adversarial_training(architecture, method, iterations=10, targeted=False):
 
     model, xtrain, ytrain, xtest, ytest, result_folder = prepare_data_and_model(architecture, method)
 
     model(model.input)
 
-    report = Report(os.path.join(result_folder, architecture))
+    report = Report(result_folder, architecture)
 
-    for run in range(15):
+    for run in range(iterations):
 
-        y_adv_test_target = create_target_vector(ytest)
-        x_adv_test = manipulate_data(xtest, model, method,
-                                     os.path.join("res", "adv", "test", architecture, str(run)), y_adv_test_target)
+        y_adv_test_target = create_target_vector(ytest) if targeted else None
 
-        report.evaluate_accuracies(model, xtest, ytest, architecture, run)
+        x_adv_test = get_manipulated_data(xtest, model, method, y_adv_test_target,
+                                          result_folder, "advtest", architecture, run)
 
-        y_adv_train_target = create_target_vector(ytrain)
-        x_adv_train = manipulate_data(xtrain, model, method,
-                                      os.path.join("res", "adv", "train", architecture, str(run)), y_adv_train_target)
+        report.evaluate_accuracies(model, xtest, ytest, architecture, method, run)
+
+        y_adv_train_target = create_target_vector(ytrain) if targeted else None
+        x_adv_train = get_manipulated_data(xtrain, model, method, y_adv_train_target,
+                                           result_folder, "advtrain", architecture, run)
 
         y_adv_test = model.predict(x_adv_test)
 

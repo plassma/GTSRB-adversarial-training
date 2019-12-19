@@ -1,26 +1,27 @@
+import csv
 import os
 
 import matplotlib.pyplot as plt
 import numpy as np
 from tensorflow.keras.preprocessing.image import array_to_img
-from adversarials import load_adversarials
+
+from adversarials import get_manipulated_data
 from heatmap import grad_CAM_plus
 from preprocessing import signnames
-import csv
 
 SAMPLES = 100
 
 
 class Report:
-    def __init__(self, result_folder):
+    def __init__(self, result_folder, architecture):
 
         if not os.path.exists(result_folder):
             os.makedirs(result_folder)
 
         self.result_folder = result_folder
         self.run = 0
-
-        self.csv_file = open(os.path.join(result_folder, "accuracies.csv"), "w")
+        self.architecture = architecture
+        self.csv_file = open(os.path.join(result_folder, architecture, "accuracies.csv"), "w")
         self.accuracy_csv_writer = csv.writer(self.csv_file)
 
         self.data = {}
@@ -61,7 +62,7 @@ class Report:
 
     def report(self):
 
-        result_folder = os.path.join(self.result_folder, str(self.run))
+        result_folder = os.path.join(self.result_folder, self.architecture, str(self.run))
 
         if not os.path.exists(result_folder):
             os.makedirs(result_folder)
@@ -82,12 +83,12 @@ class Report:
 
         self.run += 1
 
-    def evaluate_accuracies(self, model, xtest, ytest, architecture, run):
+    def evaluate_accuracies(self, model, xtest, ytest, architecture, method, run):
 
         accuracies = [run, model.evaluate(xtest, ytest, batch_size=1024, verbose=0)[1]]
 
         for i in range(run + 1):
-            adv = load_adversarials(os.path.join("res", "adv", "test", architecture, str(i)))
+            adv = get_manipulated_data(None, model, method, None, self.result_folder, "advtest", architecture, i)
             _, acc = model.evaluate(adv, ytest, batch_size=1024, verbose=0)
             accuracies.append(acc)
 

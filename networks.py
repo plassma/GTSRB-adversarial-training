@@ -217,11 +217,11 @@ def get_regularization_loss(model):
 
 
 def eval_adv_acc(model, x, y):
-    from adversarials import generate_adversarials_cleverhans
+    from adversarials import generate_adversarials_fgsm
 
     SAMPLES = 200
 
-    x_adv = generate_adversarials_cleverhans(model, x[:SAMPLES], y[:SAMPLES])
+    x_adv = generate_adversarials_fgsm(model, x[:SAMPLES], y[:SAMPLES])
 
     acc = model.evaluate(x_adv, y[:SAMPLES], batch_size=1024, verbose=0)
 
