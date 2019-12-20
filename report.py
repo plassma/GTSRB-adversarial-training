@@ -15,8 +15,8 @@ SAMPLES = 100
 class Report:
     def __init__(self, result_folder, architecture):
 
-        if not os.path.exists(result_folder):
-            os.makedirs(result_folder)
+        if not os.path.exists(os.path.join(result_folder, architecture)):
+            os.makedirs(result_folder, exist_ok=True)
 
         self.result_folder = result_folder
         self.run = 0

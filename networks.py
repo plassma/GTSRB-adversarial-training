@@ -11,7 +11,7 @@ from preprocessing import get_dataset, signnames
 
 sys.path.append(os.getcwd())
 
-LAMBDA = 0.0
+LAMBDA = 0.2
 RESULT_ROOT = "results"
 TRAIN_PATH = "res\\train\\Final_Training\\Images\\"
 TEST_PATH = "res\\test\\Final_Test\\Images\\"

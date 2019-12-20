@@ -1,0 +1,313 @@
+
+% Copyright (C) 2014-2016 by Thomas Auzinger <thomas@auzinger.name>
+
+\documentclass[draft,final]{vutinfth} % Remove option 'final' to obtain debug information.
+
+% Load packages to allow in- and output of non-ASCII characters.
+\usepackage{lmodern}        % Use an extension of the original Computer Modern font to minimize the use of bitmapped letters.
+\usepackage[T1]{fontenc}    % Determines font encoding of the output. Font packages have to be included before this line.
+\usepackage[utf8]{inputenc} % Determines encoding of the input. All input files have to use UTF8 encoding.
+
+% Extended LaTeX functionality is enables by including packages with \usepackage{...}.
+\usepackage{fixltx2e}   % Provides fixes for several errors in LaTeX2e.
+\usepackage{amsmath}    % Extended typesetting of mathematical expression.
+\usepackage{amssymb}    % Provides a multitude of mathematical symbols.
+\usepackage{mathtools}  % Further extensions of mathematical typesetting.
+\usepackage{microtype}  % Small-scale typographic enhancements.
+\usepackage{enumitem}   % User control over the layout of lists (itemize, enumerate, description).
+\usepackage{multirow}   % Allows table elements to span several rows.
+\usepackage{booktabs}   % Improves the typesettings of tables.
+\usepackage{subcaption} % Allows the use of subfigures and enables their referencing.
+\usepackage[ruled,linesnumbered,algochapter]{algorithm2e} % Enables the writing of pseudo code.
+\usepackage[usenames,dvipsnames,table]{xcolor} % Allows the definition and use of colors. This package has to be included before tikz.
+\usepackage{nag}       % Issues warnings when best practices in writing LaTeX documents are violated.
+\usepackage{hyperref}  % Enables cross linking in the electronic document version. This package has to be included second to last.
+\usepackage[acronym,toc]{glossaries} % Enables the generation of glossaries and lists fo acronyms. This package has to be included last.
+
+% Define convenience functions to use the author name and the thesis title in the PDF document properties.
+\newcommand{\authorname}{Matthias Plasser} % The author name without titles.
+\newcommand{\thesistitle}{Title of the Thesis} % The title of the thesis. The English version should be used, if it exists.
+% mycommands
+\newcommand{\norm}[1]{\left\lVert#1\right\rVert}
+
+% Set PDF document properties
+\hypersetup{
+    pdfpagelayout   = TwoPageRight,           % How the document is shown in PDF viewers (optional).
+    linkbordercolor = {Melon},                % The color of the borders of boxes around crosslinks (optional).
+    pdfauthor       = {\authorname},          % The author's name in the document properties (optional).
+    pdftitle        = {\thesistitle},         % The document's title in the document properties (optional).
+    pdfsubject      = {Subject},              % The document's subject in the document properties (optional).
+    pdfkeywords     = {a, list, of, keywords} % The document's keywords in the document properties (optional).
+}
+
+\setsecnumdepth{subsection} % Enumerate subsections.
+
+\nonzeroparskip             % Create space between paragraphs (optional).
+\setlength{\parindent}{0pt} % Remove paragraph identation (optional).
+
+\makeindex      % Use an optional index.
+\makeglossaries % Use an optional glossary.
+%\glstocfalse   % Remove the glossaries from the table of contents.
+
+% Set persons with 4 arguments:
+%  {title before name}{name}{title after name}{gender}
+%  where both titles are optional (i.e. can be given as empty brackets {}).
+\setauthor{}{\authorname}{}{male}
+\setadvisor{Ao.univ.Prof. Dr.}{Andreas Rauber}{}{male}
+
+% For bachelor and master theses:
+\setfirstassistant{Pretitle}{Forename Surname}{Posttitle}{male}
+\setsecondassistant{Pretitle}{Forename Surname}{Posttitle}{male}
+\setthirdassistant{Pretitle}{Forename Surname}{Posttitle}{male}
+
+% For dissertations:
+\setfirstreviewer{Pretitle}{Forename Surname}{Posttitle}{male}
+\setsecondreviewer{Pretitle}{Forename Surname}{Posttitle}{male}
+
+% For dissertations at the PhD School:
+\setsecondadvisor{Pretitle}{Forename Surname}{Posttitle}{male}
+
+% Required data.
+\setaddress{Address}
+\setregnumber{0123456}
+\setdate{01}{01}{2001} % Set date with 3 arguments: {day}{month}{year}.
+\settitle{\thesistitle}{Effect of adversarial training on the decision boundary of convolutional neural networks} % Sets English and German version of the title (both can be English or German).
+\setsubtitle{Optional Subtitle of the Thesis}{Optionaler Untertitel der Arbeit} % Sets English and German version of the subtitle (both can be English or German).
+
+% Select the thesis type: bachelor / master / doctor / phd-school.
+% Bachelor:
+\setthesis{bachelor}
+%
+% Master:
+%\setthesis{master}
+%\setmasterdegree{dipl.} % dipl. / rer.nat. / rer.soc.oec. / master
+%
+% Doctor:
+%\setthesis{doctor}
+%\setdoctordegree{rer.soc.oec.}% rer.nat. / techn. / rer.soc.oec.
+%
+% Doctor at the PhD School
+%\setthesis{phd-school} % Deactivate non-English title pages (see below)
+
+% For bachelor and master:
+\setcurriculum{Software and Information Engineering}{Software und Information Engineering} % Sets the English and German name of the curriculum.
+
+% For dissertations at the PhD School:
+\setfirstreviewerdata{Affiliation, Country}
+\setsecondreviewerdata{Affiliation, Country}
+
+% Define convenience macros.
+\newcommand{\todo}[1]{{\color{red}\textbf{TODO: {#1}}}} % Comment for the final version, to raise errors.
+
+
+\begin{document}
+
+\frontmatter % Switches to roman numbering.
+% The structure of the thesis has to conform to
+%  http://www.informatik.tuwien.ac.at/dekanat
+
+\addtitlepage{naustrian} % German title page (not for dissertations at the PhD School).
+\addtitlepage{english} % English title page.
+\addstatementpage
+
+\begin{danksagung*}
+\todo{Ihr Text hier.}
+\end{danksagung*}
+
+\begin{acknowledgements*}
+\todo{Enter your text here.}
+\end{acknowledgements*}
+
+\begin{kurzfassung}
+\todo{Ihr Text hier.}
+\end{kurzfassung}
+
+\begin{abstract}
+\todo{Enter your text here.}
+\end{abstract}
+
+% Select the language of the thesis, e.g., english or naustrian.
+\selectlanguage{english}
+
+% Add a table of contents (toc).
+\tableofcontents % Starred version, i.e., \tableofcontents*, removes the self-entry.
+
+% Switch to arabic numbering and start the enumeration of chapters in the table of content.
+\mainmatter
+
+\chapter{Introduction}
+Neural Networks are more reliable than ever in 2019, and outperform human experts in a broad range of tasks, from playing Go to recognizing fractures in MRIs. The existence of adversary examples - 
+examples that are carefully, (almost) imperceptibly manipulated in order to get misclassified by neural networks challenges that reliability. Adversary inputs can be constructed by starting from
+and input that is initially correctly labelled by a classifier. By carefully manipulating features by a tiny amount in the correct direction - towards the decision boundary, it's possible to
+craft data that to a human still appears like the original input, yet gets labeled as something else by the given classifier. Adversarial inputs can even be crafted in hardware, like street signs. By adding special stickers, that do not influence a human's recognition, neural networks can be tricked to misclassify a picture of the manipulated sign. As long as neural networks can be fooled so easily, autonomous driving is very vulnerable.
+A remedy against adversarial inputs is adversarial training - using those manipulated inputs for training.
+In this paper, the effectiveness of different kinds of adversarial training, and especially how it influences the decision parameters of CNNs will be discussed and visualized. As decision parameters are hard to interpret, a technique called class activation maps is used for visualizing the decision parameters. The form of adversary inputs also exposes features of the decision boundary, which lays between the original and the adversary input.
+
+\chapter{Fundamentals}
+
+In this chapter some basics will be introduced in a level of detail required for comprehending the following work.
+For a higher level of detail and further reading, references are provided.
+
+\section{Adversarial Examples}
+
+Adversarial Examples are inputs that show faults in the input-output mappings of neural networks.
+Those inputs are easy to classify correctly for a human, but misclassified by a certain classifier with high confidence.
+Adversarial inputs are usually generated by imperceptibly modifying existing, genuine inputs, some methods can achieve misclassification by modifying just a single pixel. %todo:\cite{singlepixelattack}
+Christian Szegedy et al. were the first to describe adversarial examples for (deep) neural networks in 2013, and they suspect, that small "pockets" occuring in the input-output mappings enable the existence of adversarial examples.
+They found, that adversarial examples generated for one model are also statistically hard to classify for networks with different hyperparameters, or even more surprising for networks trained on different data sets \cite{Szegedy2013}.
+
+\subsection{Adversarial Attacks}
+
+This section is about the algorithms for generating adversarial examples used in the experiments of this work.
+After a brief introduction and theoretical justification for the existence of Adversarial Examples, the Fast Gradient Sign Method, the Basic Iterative Method and the Single Pixel Attack will be explained.\\
+Since the discovery of adversarial examples for DNNs in 2013, dozens of methods for generating them have been developed.
+Adversarial Attacks can be targeted or untargeted, where the targeted version aims to make a classifier predict a certain class for an input, while an untargeted attack seeks minimization for the predicted probability of the correct class.
+Furthermore, adversarial attacks can be divided in black or white box attacks, where white box attacks have access to some or all model parameters, while inference of a model's prediction is sufficient for black box attacks.
+\\
+The following explanation assumes on linearity of the input-output mapping.
+In a small range around an input, this assumption holds for many different, even highly unlinear models, as they are designed and tuned to operate mostly in the linear section \cite{Goodfellow2015}.
+Approximating one output function of a classifier in the local environment around an input vector $x$ with $w^T$, this activation function can be written as a dot product: $f(x) = w^Tx$.
+Introducing an adversary input $\tilde{x}$ as the sum of the original input $x$ and the perturbation $\eta$, we can write the activation function for $\tilde{x}$ like follows:
+
+\begin{equation}
+	f(\tilde{x}) = w^Tx + w^T\eta
+\end{equation}
+
+Maximizing the change induced by $\eta$ in relation to its largest magnitude $\norm{\eta}_\infty$, it is optimal to set $\eta = sign(w)$.
+The effect on the activation for $\tilde{x}$ can be calculated by $m*n$, where $m$ is the average magnitude of $w$, and $n$ the number of dimensions of $w$ and the input $x$.
+As $\norm{sign(w)}_\infty = 1$ is valid and invariant of the number of dimensions, but the impact of $\eta$ on $m*n$ and hence on $f(\tilde{x})$ grows linearly with $n$, classifiers are more vulnerable to adversarial inputs the higher the dimensionality of their input vectors is. \cite{Goodfellow2015}
+
+\subsubsection{Fast Gradient Sign Method}
+
+This computely very cheap method for finding adversarial examples was developed by Goodfellow et al. in 2015, and relies on the assumption of linearity in a range around an input $x$.
+Given model parameters $\theta$, an input $x$, the correct output $y$ and the model's loss function $J$, a perturbation $\eta$ can be calculated as follows:
+
+
+\begin{equation}
+	\eta = sign(\nabla_xJ((\theta, x, y))
+\end{equation}
+
+$\eta$ can be considered to "follow" the gradient of the loss function in respect of the input, and thus to change the loss function in an optimal way in relation to its maximal magnitude $\norm{\eta}_\infty$.
+
+%todo: introduce epislon
+
+\chapter{Related Work}
+
+This chapter will briefly summarize publications that are similar to this work, or contain fundamentals for it, and state, how this publications are relevant.
+
+Intentionally crafted adversarial examples for deep neural networks were first described by Christian Szegedy et al. in 2013 \cite{Szegedy2013}.
+They conclude, that although (deep) neural networks are thought to achieve high generalization, they show discontinuities in their input-output mappings, which enable the existence of adversarial inputs.
+The authors also propose the L-BFGS method for finding adversarial examples, and suggest using this method for hard negative mining and generating valuable training data.\\
+\\
+Warren He et al. examined decision boundaries around adversarial images.
+They introduced an adversarial attack method able to evade common adversarial defense techniques, like adversarial training.
+Furthermore, He et al. found examining the distance of input samples from decision boundaries could reveal differences between adversarial and benign inputs \cite{He2018}.
+However, they did not visualize the decision boundary of the networks they trained in form of class-activation maps nor heat-maps.\\
+\\
+Chattopadhyay, Sarkar et al. proposed the method of visualizing, what areas of an image appear especially important for image classification to convolutional neural networks used in this work. 
+Due to the fact, that spatial information is preserved in the convolutional layers of CNNs, and the ability to calculate the gradient between outputs of the last convolutional layer and the desired output, weights can be assigned to all parts of the input image.
+Weighing the localizable activations in the last convolutional layer of a CNN results in a map, that highlights the areas of greatest importance for the made prediction \cite{Chattopadhyay2017}.\\
+
+
+\chapter{Methodology}
+
+This chapter will in describe how the experiment performed in this work was performed in detail. \\
+The effects of adversarial training on the decision boundary of CNNs is investigated in an experimental-interpretative way.
+After an initial training with the original data, several iterations of the following procedure are performed.
+Adversary data are created for the trained network and combined with the original training data, for another run of training of the classifier.
+During the iterations of this procedure, relevant data like accuracy on both the test set and the adversarial test set before and after adversary training are collected. 
+Furthermore, heatmaps that highlight areas of highest importance for the network's decision are created.
+For a distinction of the effects of adversarial training from the effects of a greater amount of regular training, a control-experiment using normal-distributed gaussian noise instead of adversarial data is performed.
+Finally, that data is interpreted.
+
+\section{Training Data}
+
+The German Traffic Sign Recognition Benchmark is used as original training data. The set consists of 39209 labeled 64x64 images for training, and 12630 for validation. The images are distributed unevenly among the classes, and contain little distortions.
+
+\subsection{Neural Network Architectures}
+
+Several architectures of CNNs are considered, from the shallow letnet-5 up to a version of the Imagenet, the ResNet50 having 50 layers. The varying depths may have effects on the vulnerability for adversarial examples, and hence also on the influence adversarial training has on the decision boundary. The networks are modeled and trained using tensorflow and keras in python.
+
+\subsection{Adversarial Input Generation}
+
+From the discovery of adversarial examples for deep neural networks in 2014, dozens of methods for finding adversarial inputs for neural networks were developed.
+
+\subsubsection{Methods}
+For computational cost reasons, so far only the Fast Gradient Sign Method was examined. Images generated with this method sometimes have perceptible artifacts, thus this method may not be the best for examining the effects of adversary training.
+
+\subsubsection{Libraries}
+
+So far, the most convincing adversarial images could be generated with IBM's adversarial-robustness-toolkit. For different attacks, Google's cleverhans and foolbox will be considered as well.
+
+\section{Experiment}
+
+For the examination of the effects of adversarial training on the decision boundary, a CNN is first trained with original input data. For later comparison, gradient based heatmaps, that highlight areas in the original inputs
+that were contributing to the resulting prediction the most are created. Given a trained network, adversarial inputs are generated, and used for another run of training the network. This process is repeated, until adversary
+inputs can be recognized by the CNN with a certain confidence before the adversarial training. 
+A comparison of the heatmaps, and thus the features that were most important for the decision of the neural network should allow some conclusions about the effects of adversarial training on the decision boundary of neural networks. Likewise,
+the appearance of adversary images, that could successfully fool the classifier can expose characteristics of the decision boundary, as the decision boundary lies between the original input and the tempered one.
+
+\section{Frameworks}
+
+The current implementation of the experiment is done in python 3.5 and uses several Frameworks, of which some are listed below:
+
+\begin{table}[h]
+  \centering
+  \begin{tabular}{cccc}
+    \toprule
+Name                                    & Version   \\
+    \midrule
+    Numpy                               & 1.17.3    \\
+    Tensorflow                          & 1.14.0    \\
+    Tensorflow-GPU                      & 1.14.0    \\
+    Keras                               & 2.3.1     \\
+    Adversarial-Robustness-Toolkit      & 1.0.1     \\
+    Cleverhans                          & 3.0.1     \\
+    Foolbox                             & 2.3.0     \\
+    
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\chapter{Results}
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[scale=0.5]{graphics/Results/3.png}
+    \caption{First result, first training run of alexnet using FGSM-adversarials}
+    \label{fig:results} % \label has to be placed AFTER \caption (or \subcaption) to produce correct cross-references.
+\end{figure}
+
+Figure \ref{fig:results} depicts an example of results produced by the current implementation of the experiment. In this example, an alexnet was trained and fooled using FGSM. The original input (top left) is correctly classified (70km/h), the adversary input below gets misclassified (30km/h). The heatmaps in the middle show, which areas of the image were most important for the classifier's decision before adversary training. The right column shows the areas of most importance for the decision after adversarial training. After adversarial training, the adversary input gets classified correctly, and the heated area at the bottom right corner of the image disappeared. This could be interpreted as shift of "attention" to areas that seem more important and reliable for classification.
+
+\chapter{Outline of planned calculations}
+
+Currently, the experiment could only be done for the lenet-5 and the alexnet, using FGSM, as generating adversarial inputs for deeper architectures requires more computational power. Also, the results presented before only used one run of training and adversarial training, I expect clearer results after 10-100 iterations.
+The planned calculations include training lenet-5, alexnet, vgg19 and resnet50, and generating adversarial training data for them using at least FGSM and one stronger method like deepfool. For a better resolution of the heatmaps, an upscale of the input images to at least 224x224 might be necessary, resulting in an increase of the computational costs for the whole experiment.
+
+% Remove following line for the final thesis.
+\input{intro.tex} % A short introduction to LaTeX.
+
+\backmatter
+
+% Use an optional list of figures.
+\listoffigures % Starred version, i.e., \listoffigures*, removes the toc entry.
+
+% Use an optional list of tables.
+\listoftables % Starred version, i.e., \listoftables*, removes the toc entry.
+
+% Use an optional list of alogrithms.
+\listofalgorithms
+\addcontentsline{toc}{chapter}{List of Algorithms}
+
+% Add an index.
+\printindex
+
+% Add a glossary.
+\printglossaries
+
+% Add a bibliography.
+\bibliographystyle{alpha}
+\bibliography{intro}
+
+\end{document}
