@@ -1,4 +1,4 @@
-
+%
 % Copyright (C) 2014-2016 by Thomas Auzinger <thomas@auzinger.name>
 
 \documentclass[draft,final]{vutinfth} % Remove option 'final' to obtain debug information.
@@ -196,7 +196,7 @@ Therefore, a targeted version of the attack can be obtained by minimizing the lo
 \end{equation}
 \cite{Goodfellow2015}
 
-\subsection{Basic Iterative Method}
+\subsubsection{Basic Iterative Method}
 
 As a straightforward extension to the Fast Gradient Sign Method, the Basic Iterative Method does not perturb the original input in a single step with width $\epsilon$, but iteratively applies smaller changes. As in each iteration the gradient is evaluated anew, this method can follow the gradient more accurately, and therefore may require a smaller maximal magnitude of the perturbation. The untargeted version of the Basic Iterative Method can be formulated in the following way:
 
@@ -204,11 +204,25 @@ As a straightforward extension to the Fast Gradient Sign Method, the Basic Itera
 	X^{adv}_0 = X, X^{adv}_{N+1} = Clip_{X,e}\{X^{adv}_{N} + \alpha sign(\nabla_xJ(X^{adv}_{N}, y_{true})) \}
 \end{equation}
 
-$\alpha$ limits the step size per iteration, while $\epsilon$ still contrains the maximal magnitude of difference between the final adversarial image and the orignal input.
+$\alpha$ limits the step size per iteration, while $\epsilon$ still constrains the maximal magnitude of difference between the final adversarial image and the orignal input.
 
-\subsection{One Pixel Attack}
+\subsubsection{One Pixel Attack}
 
+The Single Pixel Attack is an extremely limited method for finding adversarial examples.
+Instead of limiting the magnitude of the perturbation, its dimensionality is constrained to be 1 ($\norm{\eta}_0=1$).
+Jiawei Su et al. describe a way for finding single pixel modifications that lead to misclassification by differential evolution.
+This algorithm works by maintaining an amount of candidate solutions (400), combining their features and selecting the fittest among the parent and child generations.
+The only information this method requires from the attacked classifier is the output-probabilities, so the One Pixel Attack is a black box attack, and also not reliant on gradients \cite{Jiawei2017}.
+As this method works entirely different than the Fast Gradient Sign Method, it is ideal for evaluating adversarial robustness of a model after adversarial training using FGSM.
 
+\subsection{Adversarial defenses}
+
+Since the discovery of adversarial attacks, also defenses against them have been developed.
+In this section the two adversarial defense strategies used in the experiments of this work will be described briefly.
+
+\subsubsection{Adversarial Training}
+
+Goodfellow et al. suggest using adversarial inputs for 
 
 \chapter{Related Work}
 
