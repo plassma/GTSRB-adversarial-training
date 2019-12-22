@@ -164,32 +164,47 @@ Since the discovery of adversarial examples for DNNs in 2013, dozens of methods 
 Adversarial Attacks can be targeted or untargeted, where the targeted version aims to make a classifier predict a certain class for an input, while an untargeted attack seeks minimization for the predicted probability of the correct class.
 Furthermore, adversarial attacks can be divided in black or white box attacks, where white box attacks have access to some or all model parameters, while inference of a model's prediction is sufficient for black box attacks.
 \\
-The following explanation assumes on linearity of the input-output mapping.
+The following explanation assumes linear behavior of the input-output mapping of the classifiers attacked.
 In a small range around an input, this assumption holds for many different, even highly unlinear models, as they are designed and tuned to operate mostly in the linear section \cite{Goodfellow2015}.
 Approximating one output function of a classifier in the local environment around an input vector $x$ with $w^T$, this activation function can be written as a dot product: $f(x) = w^Tx$.
-Introducing an adversary input $\tilde{x}$ as the sum of the original input $x$ and the perturbation $\eta$, we can write the activation function for $\tilde{x}$ like follows:
+Introducing an adversary input $\tilde{x}$ as the sum of the original input $x$ and a perturbation $\eta$, with maximal magnitude $\epsilon$, we can write the activation function for $\tilde{x}$ like follows:
 
 \begin{equation}
 	f(\tilde{x}) = w^Tx + w^T\eta
 \end{equation}
 
-Maximizing the change induced by $\eta$ in relation to its largest magnitude $\norm{\eta}_\infty$, it is optimal to set $\eta = sign(w)$.
-The effect on the activation for $\tilde{x}$ can be calculated by $m*n$, where $m$ is the average magnitude of $w$, and $n$ the number of dimensions of $w$ and the input $x$.
+For maximizing the change induced by $\eta$ in relation to its largest magnitude $\epsilon$, it is optimal to set $\eta = \epsilon sign(w)$.
+The effect on the activation for $\tilde{x}$ can be calculated by $\epsilon*m*n$, where $m$ is the average magnitude of $w$, and $n$ is the number of dimensions of $w$ and the input $x$.
 As $\norm{sign(w)}_\infty = 1$ is valid and invariant of the number of dimensions, but the impact of $\eta$ on $m*n$ and hence on $f(\tilde{x})$ grows linearly with $n$, classifiers are more vulnerable to adversarial inputs the higher the dimensionality of their input vectors is. \cite{Goodfellow2015}
 
 \subsubsection{Fast Gradient Sign Method}
 
-This computely very cheap method for finding adversarial examples was developed by Goodfellow et al. in 2015, and relies on the assumption of linearity in a range around an input $x$.
-Given model parameters $\theta$, an input $x$, the correct output $y$ and the model's loss function $J$, a perturbation $\eta$ can be calculated as follows:
-
+This computely very cheap method for finding adversarial examples was described by Goodfellow et al. in 2015, and relies on the assumption of linearity in a range around an input $x$.
+Given model parameters $\theta$, an input $x$, the true label $y_{true}$ and the model's loss function $J$, a perturbation $\eta$ can be calculated as follows:
 
 \begin{equation}
-	\eta = sign(\nabla_xJ((\theta, x, y))
+	\eta = \epsilon sign(\nabla_xJ((\theta, x, y_{true}))
 \end{equation}
 
 $\eta$ can be considered to "follow" the gradient of the loss function in respect of the input, and thus to change the loss function in an optimal way in relation to its maximal magnitude $\norm{\eta}_\infty$.
+\\
+Hence, this untargeted form of the Fast Gradient Sign Method works by maximizing the loss function for the given input and its true label.
+Therefore, a targeted version of the attack can be obtained by minimizing the loss function for the current input and the taget label $y_{target}$:
 
-%todo: introduce epislon
+\begin{equation}
+	\eta = -\epsilon sign(\nabla_xJ((\theta, x, y_{target}))
+\end{equation}
+\cite{Goodfellow2015}
+
+\subsection{Basic Iterative Method}
+
+As a straightforward extension to the Fast Gradient Sign Method, the Basic Iterative Method does not perturb the original input in a single step with width $\epsilon$, but iteratively applies smaller changes. As in each iteration the gradient is evaluated anew, this method can follow the gradient more accurately, and therefore may require a smaller maximal magnitude of the perturbation. The untargeted version of the Basic Iterative Method can be formulated in the following way:
+
+\begin{equation}
+	X^{adv}_0 = X, X^{adv}_{N+1} = Clip_{X,e}\{X^{adv}_{N} + \alpha sign(\nabla_xJ(X^{adv}_{N}, y_{true})) \}
+\end{equation}
+
+$\alpha$ limits the step size per iteration, while $\epsilon$ still contrains the maximal magnitude of difference between the final adversarial image and the orignal input.
 
 \chapter{Related Work}
 
