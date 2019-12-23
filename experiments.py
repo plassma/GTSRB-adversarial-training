@@ -37,7 +37,7 @@ def iterative_adversarial_training(architecture, method, iterations=10, targeted
 
         report.add_data_before(model, xtest, ytest, x_adv_test, y_adv_test)
 
-        train_model(model, xtrain, ytrain, xtest, ytest, modelpath=architecture + str(run) + "_adv.h5",
+        train_model(model, xtrain, ytrain, xtest, ytest, architecture, run + 1,
                     result_folder=result_folder, adversarial=True)
 
         report.add_data_after(model, xtest, x_adv_test)

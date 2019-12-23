@@ -74,7 +74,6 @@ def get_adversarial_loss(model, loss_function):
     from cleverhans.attacks import FastGradientMethod
     from cleverhans.utils_keras import KerasModelWrapper
 
-    learning = tf.keras.backend.learning_phase()
     tf.keras.backend.set_learning_phase(False)
 
     wrap = KerasModelWrapper(model)
@@ -90,8 +89,10 @@ def get_adversarial_loss(model, loss_function):
 
         # Generate adversarial examples
         x_adv = fgsm.generate(model.input, **fgsm_params)
+
+        # todo: stop gradient?
         # Consider the attack to be constant
-        x_adv = tf.stop_gradient(x_adv)
+        #x_adv = tf.stop_gradient(x_adv)
 
         # Cross-entropy on the adversarial examples
         preds_adv = model(x_adv)
@@ -99,7 +100,7 @@ def get_adversarial_loss(model, loss_function):
 
         return 0.5 * cross_ent + 0.5 * cross_ent_adv
 
-    tf.keras.backend.set_learning_phase(learning)
+    tf.keras.backend.set_learning_phase(True)
 
     return regularized_adv_loss
 

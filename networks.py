@@ -65,7 +65,7 @@ def prepare_data_and_model(architecture, method):
     elif architecture == 'resnet50':
         model = build_resnet50(num_classes, model_input_shape)
 
-    train_model(model, xtrain, ytrain, xtest, ytest, modelpath=architecture + "model.h5", result_folder=result_folder)
+    train_model(model, xtrain, ytrain, xtest, ytest, architecture, 0, result_folder=result_folder, adversarial=True)
 
     return model, xtrain, ytrain, xtest, ytest, result_folder
 
@@ -165,7 +165,7 @@ def measure_input_gradient(model, x, y):
 
     grad = tf.gradients(temp, model.input)[0]
 
-    sum_grad = tf.reduce_sum(grad, [1,2,3])
+    sum_grad = tf.reduce_sum(grad, [1, 2, 3])
 
     sum_grad2 = tf.square(sum_grad)
 
@@ -237,7 +237,7 @@ def get_regularization_loss(model):
 #     return
 
 
-def train_model(model, xtrain, ytrain, xtest, ytest, modelpath, lr=0.001,
+def train_model(model, xtrain, ytrain, xtest, ytest, architecture, run, lr=0.001,
                 batch_size=32, epochs=10, result_folder="", adversarial=False):
     """
     Trains a CNN for a given dataset
@@ -256,20 +256,20 @@ def train_model(model, xtrain, ytrain, xtest, ytest, modelpath, lr=0.001,
     from tensorflow.keras.callbacks import LearningRateScheduler, ModelCheckpoint
     from adversarials import get_adversarial_loss
 
-    sgd = SGD(lr=lr, decay=1e-6, momentum=0.9, nesterov=True)
-
-    loss = get_regularization_loss(model)
-
-    if adversarial:
-        # loss = get_adversarial_loss(model, loss)
-        loss = get_adversarial_loss(model, loss)
-
+    modelpath = architecture + str(run) + ".h5"
     modelpath = os.path.join(result_folder, modelpath)
 
     checkpoint = ModelCheckpoint(modelpath, save_best_only=True)
     csv_logger = CSVLogger(os.path.join(result_folder, "training.log"), separator=",", append=True)
 
-    model.compile(loss=loss, optimizer=sgd, metrics=['accuracy'])
+    if run == 0:
+        loss = get_regularization_loss(model)
+        sgd = SGD(lr=lr, decay=1e-6, momentum=0.9, nesterov=True)
+
+        if adversarial:
+            loss = get_adversarial_loss(model, loss)
+
+        model.compile(loss=loss, optimizer=sgd, metrics=['accuracy'])
 
     if os.path.exists(modelpath) and os.path.isfile(modelpath):
         model.load_weights(modelpath)
