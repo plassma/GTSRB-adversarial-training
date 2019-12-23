@@ -48,7 +48,7 @@ def prepare_data_and_model(architecture, method):
     xtrain, ytrain, xtest, ytest = get_dataset(TRAIN_PATH, TEST_PATH, TEST_LABELS_PATH, (IMG_SIZE, IMG_SIZE))
     num_classes = np.unique(ytrain).size
     # one-hot result vector encoding
-    from keras.utils import np_utils
+    from tensorflow.python.keras.utils import np_utils
     ytrain = np_utils.to_categorical(ytrain, num_classes=num_classes)
     ytest = np_utils.to_categorical(ytest, num_classes=num_classes)
 
@@ -209,36 +209,36 @@ def get_regularization_loss(model):
         grad = tf.gradients(categorical_crossentropy, model.input)[0]
         grad2 = tf.square(grad)
 
-        sum_dim = tf.reduce_sum(grad2, [1,2,3])
+        sum_dim = tf.reduce_sum(grad2, [1, 2, 3])
 
         return categorical_crossentropy + LAMBDA * sum_dim
 
     return penalized_loss
 
 
-def eval_adv_acc(model, x, y):
-    from adversarials import generate_adversarials_fgsm
-
-    SAMPLES = 200
-
-    x_adv = generate_adversarials_fgsm(model, x[:SAMPLES], y[:SAMPLES])
-
-    acc = model.evaluate(x_adv, y[:SAMPLES], batch_size=1024, verbose=0)
-
-    plot_labeled_images(3, 3, x_adv, model.predict(x_adv))
-
-    count = 0
-
-    for i in range(len(x_adv)):
-        count += x_adv[i][0][0][0] != x_adv[i][0][0][0]
-
-    print("not found adv for: ", count)
-
-    return
+# def eval_adv_acc(model, x, y):
+#     from adversarials import generate_adversarials_fgsm
+#
+#     SAMPLES = 200
+#
+#     x_adv = generate_adversarials_fgsm(model, x[:SAMPLES], y[:SAMPLES])
+#
+#     acc = model.evaluate(x_adv, y[:SAMPLES], batch_size=1024, verbose=0)
+#
+#     plot_labeled_images(3, 3, x_adv, model.predict(x_adv))
+#
+#     count = 0
+#
+#     for i in range(len(x_adv)):
+#         count += x_adv[i][0][0][0] != x_adv[i][0][0][0]
+#
+#     print("not found adv for: ", count)
+#
+#     return
 
 
 def train_model(model, xtrain, ytrain, xtest, ytest, modelpath, lr=0.001,
-                batch_size=32, epochs=10, result_folder=""):
+                batch_size=32, epochs=10, result_folder="", adversarial=False):
     """
     Trains a CNN for a given dataset
     :param model: initialized model
@@ -254,10 +254,15 @@ def train_model(model, xtrain, ytrain, xtest, ytest, modelpath, lr=0.001,
     """
     from tensorflow.keras.optimizers import SGD
     from tensorflow.keras.callbacks import LearningRateScheduler, ModelCheckpoint
+    from adversarials import get_adversarial_loss
 
     sgd = SGD(lr=lr, decay=1e-6, momentum=0.9, nesterov=True)
 
-    loss = get_regularization_loss(model)# 'categorical_crossentropy' #
+    loss = get_regularization_loss(model)
+
+    if adversarial:
+        # loss = get_adversarial_loss(model, loss)
+        loss = get_adversarial_loss(model, loss)
 
     modelpath = os.path.join(result_folder, modelpath)
 

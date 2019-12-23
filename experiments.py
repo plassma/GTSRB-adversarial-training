@@ -14,6 +14,8 @@ def iterative_adversarial_training(architecture, method, iterations=10, targeted
 
     model, xtrain, ytrain, xtest, ytest, result_folder = prepare_data_and_model(architecture, method)
 
+    # To be able to call the model in the custom loss, we need to call it once
+    # before, see https://github.com/tensorflow/tensorflow/issues/23769
     model(model.input)
 
     report = Report(result_folder, architecture)
@@ -27,26 +29,20 @@ def iterative_adversarial_training(architecture, method, iterations=10, targeted
 
         report.evaluate_accuracies(model, xtest, ytest, architecture, method, run)
 
-        y_adv_train_target = create_target_vector(ytrain) if targeted else None
-        x_adv_train = get_manipulated_data(xtrain, model, method, y_adv_train_target,
-                                           result_folder, "advtrain", architecture, run)
+        # y_adv_train_target = create_target_vector(ytrain) if targeted else None
+        # x_adv_train = get_manipulated_data(xtrain, model, method, y_adv_train_target,
+        #                                   result_folder, "advtrain", architecture, run)
 
         y_adv_test = model.predict(x_adv_test)
 
         report.add_data_before(model, xtest, ytest, x_adv_test, y_adv_test)
 
-        xtrain = np.concatenate((xtrain, x_adv_train))
-        ytrain = np.concatenate((ytrain, ytrain))
-
         train_model(model, xtrain, ytrain, xtest, ytest, modelpath=architecture + str(run) + "_adv.h5",
-                    result_folder=result_folder)
+                    result_folder=result_folder, adversarial=True)
 
         report.add_data_after(model, xtest, x_adv_test)
 
         report.report()
-
-        xtrain = xtrain[:int(len(xtrain) / 2)]
-        ytrain = ytrain[:int(len(ytrain) / 2)]
 
 
 def plot_confusion_matrix(labels, model, x, y, reps=10, eps=0.03):
