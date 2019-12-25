@@ -10,6 +10,7 @@ from heatmap import grad_CAM_plus
 from preprocessing import signnames
 
 SAMPLES = 100
+BATCH_SIZE = 256  # todo: 1024 for gtx1070ti
 
 
 class Report:
@@ -85,11 +86,11 @@ class Report:
 
     def evaluate_accuracies(self, model, xtest, ytest, architecture, method, run):
 
-        accuracies = [run, model.evaluate(xtest, ytest, batch_size=1024, verbose=0)[1]]
+        accuracies = [run, model.evaluate(xtest, ytest, batch_size=BATCH_SIZE, verbose=0)[1]]
 
         for i in range(run + 1):
             adv = get_manipulated_data(None, model, method, None, self.result_folder, "advtest", architecture, i)
-            _, acc = model.evaluate(adv, ytest, batch_size=1024, verbose=0)
+            _, acc = model.evaluate(adv, ytest, batch_size=BATCH_SIZE, verbose=0)
             accuracies.append(acc)
 
         self.accuracy_csv_writer.writerow(accuracies)

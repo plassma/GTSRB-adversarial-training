@@ -11,12 +11,13 @@ from preprocessing import get_dataset, signnames
 
 sys.path.append(os.getcwd())
 
-LAMBDA = 0.2
+LAMBDA = 0.1
 RESULT_ROOT = "results"
 TRAIN_PATH = "res\\train\\Final_Training\\Images\\"
 TEST_PATH = "res\\test\\Final_Test\\Images\\"
 TEST_LABELS_PATH = "res\\test\\Final_Test\\GT-final_test.csv"
 IMG_SIZE = 64
+
 
 # MIT-license: https://github.com/MaximilianIdahl/gtsrb-models-keras
 
@@ -148,11 +149,10 @@ def build_alexnet(num_classes, img_size):
 
 def lr_schedule(epoch):
     # decreasing learning rate depending on epoch
-    return 0.001 * (0.1 ** int(epoch / 15))#todo: val is 10 not 15
+    return 0.001 * (0.1 ** int(epoch / 15))  # todo: val is 10 not 15
 
 
 def measure_input_gradient(model, x, y):
-
     y_placeholder = tf.placeholder(tf.float32, shape=(None, 43))
 
     epsilon = tf.constant(tf.keras.backend.epsilon(), model.output.dtype.base_dtype)
@@ -175,15 +175,18 @@ def measure_input_gradient(model, x, y):
     ces = []
 
     for i in range(int(len(x) / batch_size) + 1):
-        ces.extend(categorical_crossentropy.eval(session=sess, feed_dict={model.input:   x[i * batch_size:min((i + 1) * batch_size, len(x))],
-                                             y_placeholder: y[i * batch_size:min((i + 1) * batch_size, len(x))]}))
+        ces.extend(categorical_crossentropy.eval(session=sess, feed_dict={
+            model.input: x[i * batch_size:min((i + 1) * batch_size, len(x))],
+            y_placeholder: y[i * batch_size:min((i + 1) * batch_size, len(x))]}))
 
     print("avg categorical crossentropy: ", np.average(ces))
 
     pens = []
     for i in range(int(len(x) / batch_size) + 1):
-        pens.extend(sum_grad2.eval(session=sess, feed_dict={model.input:   x[i * batch_size:min((i + 1) * batch_size, len(x))],
-                                             y_placeholder: y[i * batch_size:min((i + 1) * batch_size, len(x))]}))
+        pens.extend(
+            sum_grad2.eval(session=sess, feed_dict={model.input: x[i * batch_size:min((i + 1) * batch_size, len(x))],
+                                                    y_placeholder: y[
+                                                                   i * batch_size:min((i + 1) * batch_size, len(x))]}))
     print("avg input gradient: ", np.average(pens))
 
     losses = np.multiply(pens, LAMBDA) + ces
@@ -192,11 +195,10 @@ def measure_input_gradient(model, x, y):
 
     return
 
+
 # best lambda found: 0.2 (alex)
 def get_regularization_loss(model):
-
     def penalized_loss(target, output):
-
         # scale preds so that the class probas of each sample sum to 1
         output = output / tf.reduce_sum(output, -1, True)
         epsilon_ = tf.constant(tf.keras.backend.epsilon(), output.dtype.base_dtype)
@@ -204,12 +206,12 @@ def get_regularization_loss(model):
 
         temp = -target * tf.log(output)
 
-        categorical_crossentropy = tf.reduce_sum(temp, -1) # shape: (?,)
+        categorical_crossentropy = tf.reduce_sum(temp, -1)  # shape: (?,)
 
         grad = tf.gradients(categorical_crossentropy, model.input)[0]
         grad2 = tf.square(grad)
 
-        sum_dim = tf.reduce_sum(grad2, [1, 2, 3])
+        sum_dim = tf.reduce_sum(grad2, [1, 2, 3])  # todo: try stopping gradient here
 
         return categorical_crossentropy + LAMBDA * sum_dim
 
@@ -263,7 +265,7 @@ def train_model(model, xtrain, ytrain, xtest, ytest, architecture, run, lr=0.001
     csv_logger = CSVLogger(os.path.join(result_folder, "training.log"), separator=",", append=True)
 
     if run == 0:
-        loss = get_regularization_loss(model)
+        loss = get_regularization_loss(model)  # get_regularization_loss(model)
         sgd = SGD(lr=lr, decay=1e-6, momentum=0.9, nesterov=True)
 
         if adversarial:
@@ -306,7 +308,4 @@ def try_attack_params(model, x, y):
 
         x[0] = x_adv[0]
 
-
-
 # end experimental code
-
