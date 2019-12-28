@@ -246,9 +246,12 @@ The parameter $\lambda$ determines, how strong the input gradient is weighed com
 \subsection{Decision Boundary}
 
 The decision boundary of neural networks is a hyperplane in their input space and separates classes distinguised by the classifier.
-Thus, typical classifiers being able to discriminate among more than two classes have multiple decision boundaries.
-The shape of the decision boundary exposes interesting properties about the decision process: what features of the input-vector are respected with what weight.
-The smoothness of the decision boundary can be interpreted as a measure of how well a classifier generalizes: 
+Thus, typical classifiers being able to discriminate among more than two classes possess multiple decision boundaries.
+The shape of the decision boundary exposes interesting properties about the decision process: the smoother and simpler it is, the more stable a prediction made is.\\
+Back in 1200s William of Ockham formulated his law of parsimony, also known as occam’s razor, which states, that everything else being equal, the simplest explanation is the most likely. 
+How this translates to machine learning is not very clear, but still it can be shown for some learning problems, that solutions that require a shorter explanation in any bit-wise representation perform better than longer explanations \cite{Blumer1987}.\\
+As the decision boundary of DNNs is encoded into the weights, the length of their bit-wise representation is constant, but it is still intuitive, that simpler, smoother decision-boundaries provide predictions that are more stable, especially when recalling the explanation for the existence of Adversarial Examples.
+
 \subsubsection{Grad-Cam-plus-plus}
 
 \chapter{Related Work}
@@ -268,22 +271,21 @@ Chattopadhyay, Sarkar et al. proposed the method of visualizing, what areas of a
 Due to the fact, that spatial information is preserved in the convolutional layers of CNNs, and the ability to calculate the gradient between outputs of the last convolutional layer and the desired output, weights can be assigned to all parts of the input image.
 Weighing the localizable activations in the last convolutional layer of a CNN results in a map, that highlights the areas of greatest importance for the made prediction \cite{Chattopadhyay2017}.\\
 \\
-Ross and Doshi-Velez...%todo
-
-\cite{Ross2017}
+Ross and Doshi-Velez proposed, that the uninterpretability and adversarial vulnerability of deep neural networks are mutually dependent.
+As in image classification tasks noisy input gradients are often very difficult to interpret, the authors hypothesize, that regularizing (minimizing) those gradients should not only improve the interpretability, but also the Adversarial Robustness of a classifier.
+What supports their hypothesis is, that many adversarial attacks rely on input gradients.
+In their experiments, in addition to being able to confirm their hypothesis, the authors also found, that adversarial examples that successfully fooled a classifier with regularized input gradients also could fool a human, as those examples were more similar to their target class than to their original label.
+The experiments of this work, also utilize Input Gradient Regularization, and Adversarial Examples are presented in way similar to the "`confusion-matrices"' Ross and Dosi-Velez showed \cite{Ross2017}.
 
 
 
 \chapter{Methodology}
 
 This chapter will in describe how the experiment performed in this work was performed in detail. \\
-The effects of adversarial training on the decision boundary of CNNs is investigated in an experimental-interpretative way.
-After an initial training with the original data, several iterations of the following procedure are performed.
-Adversary data are created for the trained network and combined with the original training data, for another run of training of the classifier.
-During the iterations of this procedure, relevant data like accuracy on both the test set and the adversarial test set before and after adversary training are collected. 
-Furthermore, heatmaps that highlight areas of highest importance for the network's decision are created.
-For a distinction of the effects of adversarial training from the effects of a greater amount of regular training, a control-experiment using normal-distributed gaussian noise instead of adversarial data is performed.
-Finally, that data is interpreted.
+The effects of adversarial training on the decision boundary of CNNs are investigated in an experimental-interpretative way.
+In the experiment, different network architectures are trained using a combination of original and adversarial data, with and without Input Gradient Regularization.
+As a decision-boundary in 12,288 (=$64*64*3$) dimensions might be hard to visualize or 
+
 
 \section{Training Data}
 
@@ -351,9 +353,6 @@ Figure \ref{fig:results} depicts an example of results produced by the current i
 Currently, the experiment could only be done for the lenet-5 and the alexnet, using FGSM, as generating adversarial inputs for deeper architectures requires more computational power. Also, the results presented before only used one run of training and adversarial training, I expect clearer results after 10-100 iterations.
 The planned calculations include training lenet-5, alexnet, vgg19 and resnet50, and generating adversarial training data for them using at least FGSM and one stronger method like deepfool. For a better resolution of the heatmaps, an upscale of the input images to at least 224x224 might be necessary, resulting in an increase of the computational costs for the whole experiment.
 
-% Remove following line for the final thesis.
-\input{intro.tex} % A short introduction to LaTeX.
-
 \backmatter
 
 % Use an optional list of figures.
@@ -374,6 +373,6 @@ The planned calculations include training lenet-5, alexnet, vgg19 and resnet50, 
 
 % Add a bibliography.
 \bibliographystyle{alpha}
-\bibliography{intro}
+\bibliography{thesis}
 
 \end{document}

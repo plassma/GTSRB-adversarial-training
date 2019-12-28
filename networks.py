@@ -11,13 +11,13 @@ from preprocessing import get_dataset, signnames
 
 sys.path.append(os.getcwd())
 
-LAMBDA = 0.1
+LAMBDA = 0.15
 RESULT_ROOT = "results"
 TRAIN_PATH = "res\\train\\Final_Training\\Images\\"
 TEST_PATH = "res\\test\\Final_Test\\Images\\"
 TEST_LABELS_PATH = "res\\test\\Final_Test\\GT-final_test.csv"
 IMG_SIZE = 64
-
+EPOCHS = 15
 
 # MIT-license: https://github.com/MaximilianIdahl/gtsrb-models-keras
 
@@ -149,7 +149,7 @@ def build_alexnet(num_classes, img_size):
 
 def lr_schedule(epoch):
     # decreasing learning rate depending on epoch
-    return 0.001 * (0.1 ** int(epoch / 15))  # todo: val is 10 not 15
+    return 0.001 * (0.1 ** int(epoch / EPOCHS))
 
 
 def measure_input_gradient(model, x, y):
@@ -240,7 +240,7 @@ def get_regularization_loss(model):
 
 
 def train_model(model, xtrain, ytrain, xtest, ytest, architecture, run, lr=0.001,
-                batch_size=32, epochs=10, result_folder="", adversarial=False):
+                batch_size=32, epochs=EPOCHS, result_folder="", adversarial=False):
     """
     Trains a CNN for a given dataset
     :param model: initialized model
@@ -265,7 +265,7 @@ def train_model(model, xtrain, ytrain, xtest, ytest, architecture, run, lr=0.001
     csv_logger = CSVLogger(os.path.join(result_folder, "training.log"), separator=",", append=True)
 
     if run == 0:
-        loss = get_regularization_loss(model)  # get_regularization_loss(model)
+        loss = get_regularization_loss(model)
         sgd = SGD(lr=lr, decay=1e-6, momentum=0.9, nesterov=True)
 
         if adversarial:
