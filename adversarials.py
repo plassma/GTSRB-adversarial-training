@@ -28,15 +28,16 @@ def get_manipulated_data(x, model, method, y_target=None, cache_path=None, datas
     return result
 
 
-def test_FGM_params(model, x, y_target, eps=0.1):  # todo:delete this method
-    from cleverhans.attacks import FastGradientMethod
+def transform_to_target_BIM(model, x, y_target):
+    from cleverhans.attacks import BasicIterativeMethod
     from cleverhans.utils_keras import KerasModelWrapper
 
     x_placeholder = tf.placeholder(tf.float32, shape=(None, 64, 64, 3))
 
     wrap = KerasModelWrapper(model)
-    attack = FastGradientMethod(wrap)
-    attack_params = {'eps': eps,
+    attack = BasicIterativeMethod(wrap)
+    attack_params = {'eps_iter': 0.01,
+                     'nb_iter': 15,
                      'clip_min': 0.,
                      'clip_max': 1.,
                      'y_target': y_target}
@@ -50,30 +51,11 @@ def test_FGM_params(model, x, y_target, eps=0.1):  # todo:delete this method
     return np.array(adv_images)
 
 
-def get_adversarial_loss_original(model, fgsm, fgsm_params):
-
-    def adv_loss(y, preds):
-        # Cross-entropy on the legitimate examples
-        cross_ent = tf.keras.losses.categorical_crossentropy(y, preds)
-
-        # Generate adversarial examples
-        x_adv = fgsm.generate(model.input, **fgsm_params)
-        # Consider the attack to be constant
-        x_adv = tf.stop_gradient(x_adv)
-
-        # Cross-entropy on the adversarial examples
-        preds_adv = model(x_adv)
-        cross_ent_adv = tf.keras.losses.categorical_crossentropy(y, preds_adv)
-
-        return 0.5 * cross_ent + 0.5 * cross_ent_adv
-
-    return adv_loss
-
-
 def get_adversarial_loss(model, loss_function):
     from cleverhans.attacks import FastGradientMethod
     from cleverhans.utils_keras import KerasModelWrapper
 
+    # turn off learning phase to prevent dropout from destroying gradients
     tf.keras.backend.set_learning_phase(False)
 
     wrap = KerasModelWrapper(model)
@@ -90,16 +72,13 @@ def get_adversarial_loss(model, loss_function):
         # Generate adversarial examples
         x_adv = fgsm.generate(model.input, **fgsm_params)
 
-        # todo: stop gradient?
-        # Consider the attack to be constant
-        #x_adv = tf.stop_gradient(x_adv)
-
         # Cross-entropy on the adversarial examples
         preds_adv = model(x_adv)
         cross_ent_adv = loss_function(y, preds_adv)
 
         return 0.5 * cross_ent + 0.5 * cross_ent_adv
 
+    # turn learning phase back on
     tf.keras.backend.set_learning_phase(True)
 
     return regularized_adv_loss
@@ -142,18 +121,6 @@ def generate_adversarials_fgsm_cleverhans(model, x, y_target=None):
                                      feed_dict=feed_dict))
 
     return np.array(adv_images)
-
-
-def generate_adversarials_fgsm_art(model, x, y_target=None):
-    from art.attacks import FastGradientMethod
-    from art.classifiers import KerasClassifier
-
-    classifier = KerasClassifier(model=model)
-
-    attack = FastGradientMethod(classifier=classifier, eps=0.05, batch_size=1024,
-                                targeted=y_target is not None)
-
-    return attack.generate(x, y_target)
 
 
 def generate_adversarials_cwl2(model, x, y_target=None):

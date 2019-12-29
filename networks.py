@@ -292,7 +292,7 @@ def create_target_vector(labels):
 
 
 def try_attack_params(model, x, y):
-    from adversarials import test_FGM_params
+    from adversarials import transform_to_target_BIM
 
     ytarget = np.zeros((1, 43))
     ytarget[0][8] = 1
@@ -300,7 +300,7 @@ def try_attack_params(model, x, y):
     eps_iter = 0.02
 
     while True:
-        x_adv = test_FGM_params(model, x[:1], ytarget, eps_iter)
+        x_adv = transform_to_target_BIM(model, x[:1], ytarget, eps_iter)
 
         plt.imshow(x_adv[0])
         plt.show()

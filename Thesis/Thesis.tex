@@ -284,39 +284,47 @@ The experiments of this work, also utilize Input Gradient Regularization, and Ad
 This chapter will in describe how the experiment performed in this work was performed in detail. \\
 The effects of adversarial training on the decision boundary of CNNs are investigated in an experimental-interpretative way.
 In the experiment, different network architectures are trained using a combination of original and adversarial data, with and without Input Gradient Regularization.
-As a decision-boundary in 12,288 (=$64*64*3$) dimensions might be hard to visualize or 
-
+As decision-boundaries in 12,288 (=$64*64*3$) dimensions might be challenging to visualize and grasp, their shape is studied in indirect ways.
+One such indirect measure is the appearance of Adversarial Examples, as they lie just across the decision boundary.
+Therefore, one experiment consists in generating Targeted Adversarial Examples for various classifiers implementing different defense strategies, and examining their appearance.
+The other experiment examines the decision boundary by calculating and comparing the average Input Gradient after Adversarial Input Training iteratively.
+Also the vulnerability to different Adversarial Attacks is considered.
 
 \section{Training Data}
 
-The German Traffic Sign Recognition Benchmark is used as original training data. The set consists of 39209 labeled 64x64 images for training, and 12630 for validation. The images are distributed unevenly among the classes, and contain little distortions.
+The German Traffic Sign Recognition Benchmark is used as original training data. The set consists of 39209 labeled 64x64 RGB images for training, and 12630 for validation.
+The images are distributed unevenly among the classes, and contain little distortions.
+
+%todo: add example image?
+%todo: show distribution?
 
 \subsection{Neural Network Architectures}
 
-Several architectures of CNNs are considered, from the shallow letnet-5 up to a version of the Imagenet, the ResNet50 having 50 layers. The varying depths may have effects on the vulnerability for adversarial examples, and hence also on the influence adversarial training has on the decision boundary. The networks are modeled and trained using tensorflow and keras in python.
+Several architectures of CNNs are considered, as varying architectures, and especially depths may have an effect on adversarial vulnerability.
+The following table lists the used networks with their corresponding depths and numbers of trainable parameters:
 
-\subsection{Adversarial Input Generation}
+\begin{table}[h]
+  \centering
+  \begin{tabular}{cccc}
+    \toprule
+		Name    		& Depth		& Trainable Parameters\\
+    \midrule
+		lenet-5			&	8				& 391,307							\\
+		alexnet 		& 16			& 2,668,875						\\
+		vgg19				& 25			& 21,611,307					\\
+		resnet-50		& 178			& 32,021,419					\\
+    
+    \bottomrule
+  \end{tabular}
+\end{table}
 
-From the discovery of adversarial examples for deep neural networks in 2014, dozens of methods for finding adversarial inputs for neural networks were developed.
+\subsection{Implementation}
 
-\subsubsection{Methods}
-For computational cost reasons, so far only the Fast Gradient Sign Method was examined. Images generated with this method sometimes have perceptible artifacts, thus this method may not be the best for examining the effects of adversary training.
+The implementation of the experiments is done in python 3.5 using Tensorflow, Keras and Cleverhans.
+For verification and reproduction, the source code of the experiments is available on github: \url{https://github.com/plassma/GTSRB-adversarial-training}
+As malicious versions or wrong combinations of Tensorflow and cuDNN versions often led to problems, a version-table of the most important frameworks used is included:
 
-\subsubsection{Libraries}
-
-So far, the most convincing adversarial images could be generated with IBM's adversarial-robustness-toolkit. For different attacks, Google's cleverhans and foolbox will be considered as well.
-
-\section{Experiment}
-
-For the examination of the effects of adversarial training on the decision boundary, a CNN is first trained with original input data. For later comparison, gradient based heatmaps, that highlight areas in the original inputs
-that were contributing to the resulting prediction the most are created. Given a trained network, adversarial inputs are generated, and used for another run of training the network. This process is repeated, until adversary
-inputs can be recognized by the CNN with a certain confidence before the adversarial training. 
-A comparison of the heatmaps, and thus the features that were most important for the decision of the neural network should allow some conclusions about the effects of adversarial training on the decision boundary of neural networks. Likewise,
-the appearance of adversary images, that could successfully fool the classifier can expose characteristics of the decision boundary, as the decision boundary lies between the original input and the tempered one.
-
-\section{Frameworks}
-
-The current implementation of the experiment is done in python 3.5 and uses several Frameworks, of which some are listed below:
+\subsubsection{Frameworks}
 
 \begin{table}[h]
   \centering
@@ -336,6 +344,14 @@ Name                                    & Version   \\
     \bottomrule
   \end{tabular}
 \end{table}
+
+\section{Experiment}
+
+For the examination of the effects of adversarial training on the decision boundary, a CNN is first trained with original input data. For later comparison, gradient based heatmaps, that highlight areas in the original inputs
+that were contributing to the resulting prediction the most are created. Given a trained network, adversarial inputs are generated, and used for another run of training the network. This process is repeated, until adversary
+inputs can be recognized by the CNN with a certain confidence before the adversarial training. 
+A comparison of the heatmaps, and thus the features that were most important for the decision of the neural network should allow some conclusions about the effects of adversarial training on the decision boundary of neural networks. Likewise,
+the appearance of adversary images, that could successfully fool the classifier can expose characteristics of the decision boundary, as the decision boundary lies between the original input and the tempered one.
 
 \chapter{Results}
 

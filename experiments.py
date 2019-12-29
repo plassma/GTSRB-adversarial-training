@@ -45,8 +45,8 @@ def iterative_adversarial_training(architecture, method, iterations=10, targeted
         report.report()
 
 
-def plot_confusion_matrix(labels, model, x, y, reps=10, eps=0.03):
-    from adversarials import test_FGM_params
+def plot_confusion_matrix(labels, model, x, y):
+    from adversarials import transform_to_target_BIM
 
     n = len(labels)
 
@@ -67,9 +67,7 @@ def plot_confusion_matrix(labels, model, x, y, reps=10, eps=0.03):
     fig, axs = plt.subplots(nrows=n, ncols=n)
 
     for r in range(n):
-        adv_x = inputs[r]
-        for i in range(reps):
-            adv_x = test_FGM_params(model,  adv_x, targets, eps)
+        adv_x = transform_to_target_BIM(model, inputs[r], targets)
         for c in range(n):
             ax = axs[r, c]
             ax.axis('off')
