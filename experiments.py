@@ -47,6 +47,7 @@ def iterative_adversarial_training(architecture, method, iterations=10, targeted
 
 def plot_confusion_matrix(labels, model, x, y):
     from adversarials import transform_to_target_BIM
+    from preprocessing import signnames
 
     n = len(labels)
 
@@ -66,9 +67,17 @@ def plot_confusion_matrix(labels, model, x, y):
 
     fig, axs = plt.subplots(nrows=n, ncols=n)
 
+    fig.suptitle('Target Label')
+    plt.ylabel('Original Label')
+
     for r in range(n):
         adv_x = transform_to_target_BIM(model, inputs[r], targets)
         for c in range(n):
+
+            if r == 0:
+                axs[r, c].set_title(signnames[targets[c]])
+            if c == 0:
+                axs[r, c].set_ylabel(signnames[labels[r]])
             ax = axs[r, c]
             ax.axis('off')
 

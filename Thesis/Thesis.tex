@@ -311,17 +311,20 @@ The following table lists the used networks with their corresponding depths and 
     \midrule
 		lenet-5			&	8				& 391,307							\\
 		alexnet 		& 16			& 2,668,875						\\
-		vgg19				& 25			& 21,611,307					\\
-		resnet-50		& 178			& 32,021,419					\\
+		VGG19				& 25			& 21,611,307					\\
+		ResNet50		& 178			& 32,021,419					\\
     
     \bottomrule
   \end{tabular}
 \end{table}
 
+
+The VGG19 and the ResNet are not fully trained from scratch, but already pretrained on ImageNet.
 \subsection{Implementation}
 
 The implementation of the experiments is done in python 3.5 using Tensorflow, Keras and Cleverhans.
-For verification and reproduction, the source code of the experiments is available on github: \url{https://github.com/plassma/GTSRB-adversarial-training}
+For verification and reproducibility, the source code of the experiments is available on github: \url{https://github.com/plassma/GTSRB-adversarial-training}
+Parts of the program were copied from a Keras Model demo Maximilian Idahl published on github under the MIT license \cite{Idahl2018}.
 As malicious versions or wrong combinations of Tensorflow and cuDNN versions often led to problems, a version-table of the most important frameworks used is included:
 
 \subsubsection{Frameworks}
@@ -340,34 +343,29 @@ Name                                    & Version   \\
     Cleverhans                          & 3.0.1     \\
     Foolbox                             & 2.3.0     \\
 		cuDNN																&	7.6.5			\\
+		NVIDIA WHQL													& 441.66		\\
+		
     
     \bottomrule
   \end{tabular}
 \end{table}
 
-\section{Experiment}
 
-For the examination of the effects of adversarial training on the decision boundary, a CNN is first trained with original input data. For later comparison, gradient based heatmaps, that highlight areas in the original inputs
-that were contributing to the resulting prediction the most are created. Given a trained network, adversarial inputs are generated, and used for another run of training the network. This process is repeated, until adversary
-inputs can be recognized by the CNN with a certain confidence before the adversarial training. 
-A comparison of the heatmaps, and thus the features that were most important for the decision of the neural network should allow some conclusions about the effects of adversarial training on the decision boundary of neural networks. Likewise,
-the appearance of adversary images, that could successfully fool the classifier can expose characteristics of the decision boundary, as the decision boundary lies between the original input and the tempered one.
+\chapter{Experiment - Iterative Adversarial Training}
 
-\chapter{Results}
+\chapter{Experiment - Confusion Matrix}
 
-\begin{figure}[h]
-    \centering
-    \includegraphics[scale=0.5]{graphics/Results/3.png}
-    \caption{First result, first training run of alexnet using FGSM-adversarials}
-    \label{fig:results} % \label has to be placed AFTER \caption (or \subcaption) to produce correct cross-references.
-\end{figure}
+In this chapter the second experiment and its results will be described and discussed in detail.
+This experiment takes models that were trained implementing different defense strategies: none, Adversarial Training using FGSM, Input Gradient Regularization and a combination of the latter two techniques.
+These trained models will be attacked using the targeted FGSM, in one attempt targets will be very similar to the original label, in the other they will be very distinctive.
 
-Figure \ref{fig:results} depicts an example of results produced by the current implementation of the experiment. In this example, an alexnet was trained and fooled using FGSM. The original input (top left) is correctly classified (70km/h), the adversary input below gets misclassified (30km/h). The heatmaps in the middle show, which areas of the image were most important for the classifier's decision before adversary training. The right column shows the areas of most importance for the decision after adversarial training. After adversarial training, the adversary input gets classified correctly, and the heated area at the bottom right corner of the image disappeared. This could be interpreted as shift of "attention" to areas that seem more important and reliable for classification.
 
-\chapter{Outline of planned calculations}
+\section{Results}
 
-Currently, the experiment could only be done for the lenet-5 and the alexnet, using FGSM, as generating adversarial inputs for deeper architectures requires more computational power. Also, the results presented before only used one run of training and adversarial training, I expect clearer results after 10-100 iterations.
-The planned calculations include training lenet-5, alexnet, vgg19 and resnet50, and generating adversarial training data for them using at least FGSM and one stronger method like deepfool. For a better resolution of the heatmaps, an upscale of the input images to at least 224x224 might be necessary, resulting in an increase of the computational costs for the whole experiment.
+The following sections contain the results of the experiment, each heading for a different combination of model and defense strategy.
+
+\subsection{Alexnet with Adversarial Training and Input Gradient Regularization}
+
 
 \backmatter
 
