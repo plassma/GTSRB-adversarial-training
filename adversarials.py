@@ -28,7 +28,7 @@ def get_manipulated_data(x, model, method, y_target=None, cache_path=None, datas
     return result
 
 
-def transform_to_target_BIM(model, x, y_target):
+def transform_to_target_BIM(model, x, y_target, eps, iterations):
     from cleverhans.attacks import BasicIterativeMethod
     from cleverhans.utils_keras import KerasModelWrapper
 
@@ -36,8 +36,8 @@ def transform_to_target_BIM(model, x, y_target):
 
     wrap = KerasModelWrapper(model)
     attack = BasicIterativeMethod(wrap)
-    attack_params = {'eps_iter': 0.01,
-                     'nb_iter': 15,
+    attack_params = {'eps_iter': eps,
+                     'nb_iter': iterations,
                      'clip_min': 0.,
                      'clip_max': 1.,
                      'y_target': y_target}

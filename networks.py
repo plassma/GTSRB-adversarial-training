@@ -17,7 +17,7 @@ TRAIN_PATH = "res\\train\\Final_Training\\Images\\"
 TEST_PATH = "res\\test\\Final_Test\\Images\\"
 TEST_LABELS_PATH = "res\\test\\Final_Test\\GT-final_test.csv"
 IMG_SIZE = 64
-EPOCHS = 15
+EPOCHS = 10
 
 # MIT-license: https://github.com/MaximilianIdahl/gtsrb-models-keras
 
@@ -39,7 +39,7 @@ def plot_labeled_images(rows, cols, images, labels):
     plt.show()
 
 
-def prepare_data_and_model(architecture, method):
+def prepare_data_and_model(architecture, method, adversarial):
     result_folder = os.path.join(RESULT_ROOT, method)
 
     if not os.path.exists(result_folder):
@@ -66,7 +66,7 @@ def prepare_data_and_model(architecture, method):
     elif architecture == 'resnet50':
         model = build_resnet50(num_classes, model_input_shape)
 
-    train_model(model, xtrain, ytrain, xtest, ytest, architecture, 0, result_folder=result_folder, adversarial=True)
+    train_model(model, xtrain, ytrain, xtest, ytest, architecture, 0, result_folder=result_folder, adversarial=adversarial)
 
     return model, xtrain, ytrain, xtest, ytest, result_folder
 
@@ -211,7 +211,7 @@ def get_regularization_loss(model):
         grad = tf.gradients(categorical_crossentropy, model.input)[0]
         grad2 = tf.square(grad)
 
-        sum_dim = tf.reduce_sum(grad2, [1, 2, 3])  # todo: try stopping gradient here
+        sum_dim = tf.reduce_sum(grad2, [1, 2, 3])
 
         return categorical_crossentropy + LAMBDA * sum_dim
 
@@ -239,8 +239,8 @@ def get_regularization_loss(model):
 #     return
 
 
-def train_model(model, xtrain, ytrain, xtest, ytest, architecture, run, lr=0.001,
-                batch_size=32, epochs=EPOCHS, result_folder="", adversarial=False):
+def train_model(model, xtrain, ytrain, xtest, ytest, architecture, run, adversarial, lr=0.001,
+                batch_size=32, epochs=EPOCHS, result_folder=""):
     """
     Trains a CNN for a given dataset
     :param model: initialized model
