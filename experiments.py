@@ -9,7 +9,15 @@ def confusion_matrix(labels, architecture, method, epsilon, iterations, adversar
 
     model, xtrain, ytrain, xtest, ytest, result_folder = prepare_data_and_model(architecture, method, adversarial)
 
+    evaluate_model(model, xtest, ytest)
+
     plot_confusion_matrix(labels, model, xtest, ytest, epsilon, iterations)
+
+
+def create_target_vector(labels):
+    first = labels[0]
+    labels = labels[1:]
+    return np.concatenate((labels, [first]))
 
 
 def iterative_adversarial_training(architecture, method, iterations=10, targeted=False):

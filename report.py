@@ -10,7 +10,7 @@ from heatmap import grad_CAM_plus
 from preprocessing import signnames
 
 SAMPLES = 100
-BATCH_SIZE = 256  # todo: 1024 for gtx1070ti
+BATCH_SIZE = 1024
 
 
 class Report:

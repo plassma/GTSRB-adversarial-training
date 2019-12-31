@@ -66,7 +66,8 @@ def prepare_data_and_model(architecture, method, adversarial):
     elif architecture == 'resnet50':
         model = build_resnet50(num_classes, model_input_shape)
 
-    train_model(model, xtrain, ytrain, xtest, ytest, architecture, 0, result_folder=result_folder, adversarial=adversarial)
+    train_model(model, xtrain, ytrain, xtest, ytest, architecture, 0, result_folder=result_folder,
+                adversarial=adversarial)
 
     return model, xtrain, ytrain, xtest, ytest, result_folder
 
@@ -151,51 +152,6 @@ def lr_schedule(epoch):
     # decreasing learning rate depending on epoch
     return 0.001 * (0.1 ** int(epoch / EPOCHS))
 
-
-def measure_input_gradient(model, x, y):
-    y_placeholder = tf.placeholder(tf.float32, shape=(None, 43))
-
-    epsilon = tf.constant(tf.keras.backend.epsilon(), model.output.dtype.base_dtype)
-    output = model(model.input) / tf.reduce_sum(model(model.input), -1, True)
-    output = tf.clip_by_value(output, epsilon, 1. - epsilon)
-
-    temp = -y_placeholder * tf.log(output)
-
-    categorical_crossentropy = tf.reduce_sum(temp, -1)
-
-    grad = tf.gradients(temp, model.input)[0]
-
-    sum_grad = tf.reduce_sum(grad, [1, 2, 3])
-
-    sum_grad2 = tf.square(sum_grad)
-
-    sess = tf.keras.backend.get_session()
-
-    batch_size = 512
-    ces = []
-
-    for i in range(int(len(x) / batch_size) + 1):
-        ces.extend(categorical_crossentropy.eval(session=sess, feed_dict={
-            model.input: x[i * batch_size:min((i + 1) * batch_size, len(x))],
-            y_placeholder: y[i * batch_size:min((i + 1) * batch_size, len(x))]}))
-
-    print("avg categorical crossentropy: ", np.average(ces))
-
-    pens = []
-    for i in range(int(len(x) / batch_size) + 1):
-        pens.extend(
-            sum_grad2.eval(session=sess, feed_dict={model.input: x[i * batch_size:min((i + 1) * batch_size, len(x))],
-                                                    y_placeholder: y[
-                                                                   i * batch_size:min((i + 1) * batch_size, len(x))]}))
-    print("avg input gradient: ", np.average(pens))
-
-    losses = np.multiply(pens, LAMBDA) + ces
-
-    print("avg loss: ", np.average(losses))
-
-    return
-
-
 # best lambda found: 0.2 (alex)
 def get_regularization_loss(model):
     def penalized_loss(target, output):
@@ -216,27 +172,6 @@ def get_regularization_loss(model):
         return categorical_crossentropy + LAMBDA * sum_dim
 
     return penalized_loss
-
-
-# def eval_adv_acc(model, x, y):
-#     from adversarials import generate_adversarials_fgsm
-#
-#     SAMPLES = 200
-#
-#     x_adv = generate_adversarials_fgsm(model, x[:SAMPLES], y[:SAMPLES])
-#
-#     acc = model.evaluate(x_adv, y[:SAMPLES], batch_size=1024, verbose=0)
-#
-#     plot_labeled_images(3, 3, x_adv, model.predict(x_adv))
-#
-#     count = 0
-#
-#     for i in range(len(x_adv)):
-#         count += x_adv[i][0][0][0] != x_adv[i][0][0][0]
-#
-#     print("not found adv for: ", count)
-#
-#     return
 
 
 def train_model(model, xtrain, ytrain, xtest, ytest, architecture, run, adversarial, lr=0.001,
@@ -283,29 +218,70 @@ def train_model(model, xtrain, ytrain, xtest, ytest, architecture, run, adversar
                   callbacks=[LearningRateScheduler(lr_schedule), csv_logger, checkpoint])
 
 
-# begin experimental code
+def measure_input_gradient(model, x, y):
+    y_placeholder = tf.placeholder(tf.float32, shape=(None, 43))
 
-def create_target_vector(labels):
-    first = labels[0]
-    labels = labels[1:]
-    return np.concatenate((labels, [first]))
+    epsilon = tf.constant(tf.keras.backend.epsilon(), model.output.dtype.base_dtype)
+    output = model(model.input) / tf.reduce_sum(model(model.input), -1, True)
+    output = tf.clip_by_value(output, epsilon, 1. - epsilon)
+
+    temp = -y_placeholder * tf.log(output)
+
+    categorical_crossentropy = tf.reduce_sum(temp, -1)
+
+    grad = tf.gradients(temp, model.input)[0]
+
+    sum_grad = tf.reduce_sum(grad, [1, 2, 3])
+
+    sum_grad2 = tf.square(sum_grad)
+
+    sess = tf.keras.backend.get_session()
+
+    batch_size = 512
+    ces = []
+
+    for i in range(int(len(x) / batch_size) + 1):
+        ces.extend(categorical_crossentropy.eval(session=sess, feed_dict={
+            model.input: x[i * batch_size:min((i + 1) * batch_size, len(x))],
+            y_placeholder: y[i * batch_size:min((i + 1) * batch_size, len(x))]}))
+
+    print("avg categorical crossentropy: ", np.average(ces))
+
+    pens = []
+    for i in range(int(len(x) / batch_size) + 1):
+        pens.extend(
+            sum_grad2.eval(session=sess, feed_dict={model.input: x[i * batch_size:min((i + 1) * batch_size, len(x))],
+                                                    y_placeholder: y[
+                                                                   i * batch_size:min((i + 1) * batch_size, len(x))]}))
+    print("avg input gradient: ", np.average(pens))
+
+    losses = np.multiply(pens, LAMBDA) + ces
+
+    print("avg loss: ", np.average(losses))
+
+    return
 
 
-def try_attack_params(model, x, y):
-    from adversarials import transform_to_target_BIM
+def evaluate_model(model, x, y):
+    from adversarials import get_manipulated_data
+    BATCH_SIZE = 1024
 
-    ytarget = np.zeros((1, 43))
-    ytarget[0][8] = 1
+    _, acc = model.evaluate(x, y, verbose=0, batch_size=BATCH_SIZE)
 
-    eps_iter = 0.02
+    print("val acc: ", acc)
 
-    while True:
-        x_adv = transform_to_target_BIM(model, x[:1], ytarget, eps_iter)
+    measure_input_gradient(model, x, y)
 
-        plt.imshow(x_adv[0])
-        plt.show()
-        print("label: ", np.argmax(model.predict(x_adv)))
+    adv_fgsm = get_manipulated_data(x, model, 'FGSM')
 
-        x[0] = x_adv[0]
+    _, acc = model.evaluate(adv_fgsm, y, verbose=0, batch_size=BATCH_SIZE)
 
-# end experimental code
+    print("adv fgsm acc: ", acc)
+
+    OPA_SAMPLES = 32
+
+    adv_opa, true_labels = get_manipulated_data(x[:OPA_SAMPLES], model, 'OPA', y_original=y[:OPA_SAMPLES])
+
+    _, acc = model.evaluate(adv_opa, true_labels)
+
+    print("adv opa acc: ", 1 - (len(adv_opa) / OPA_SAMPLES))

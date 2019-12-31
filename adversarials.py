@@ -6,13 +6,14 @@ import tensorflow as tf
 
 # params found for FastGradientMethod: eps=0.03
 
-def get_manipulated_data(x, model, method, y_target=None, cache_path=None, dataset=None, architecture=None, run=None):
+def get_manipulated_data(x, model, method, y_original=None, y_target=None, cache_path=None, dataset=None, architecture=None, run=None):
     from pathlib import Path
     fileame = "data.npy"
 
-    cache_path = Path(cache_path, architecture, dataset, str(run), fileame)
-    if cache_path.exists():
-        return np.load(str(cache_path))
+    if cache_path:
+        cache_path = Path(cache_path, architecture, dataset, str(run), fileame)
+        if cache_path.exists():
+            return np.load(str(cache_path))
 
     if method == 'FGSM':
         result = generate_adversarials_fgsm_cleverhans(model, x, y_target)
@@ -20,11 +21,15 @@ def get_manipulated_data(x, model, method, y_target=None, cache_path=None, datas
         result = generate_adversarials_cwl2(model, x, y_target)
     elif method == 'GAUSS':
         result = generate_gaussian_noise(x, 0.03)
+    elif method == 'OPA':
+        result = generate_adversarials_OPA(model, x, y_original)
     else:
         raise Exception("Method " + method + " not implemented")
 
-    os.makedirs(str(cache_path.parent), exist_ok=True)
-    np.save(str(cache_path), result)
+    if cache_path:
+        os.makedirs(str(cache_path.parent), exist_ok=True)
+        np.save(str(cache_path), result)
+
     return result
 
 
@@ -84,8 +89,27 @@ def get_adversarial_loss(model, loss_function):
     return regularized_adv_loss
 
 
+def generate_adversarials_OPA(model, x, y):
+    from foolbox.v1.attacks import SinglePixelAttack
+    from foolbox.models import KerasModel
+
+    advs = []
+    true_labels = []
+
+    keras_model = KerasModel(model, bounds=(0, 1))
+
+    attack = SinglePixelAttack(keras_model)
+
+    for i in range(len(x)):
+        img = attack(x[i], np.argmax(y[i]))
+        if np.any(img):
+            advs.append(img)
+            true_labels.append(y[i])
+
+    return np.array(advs), np.array(true_labels)
+
+
 def generate_adversarials_fgsm_cleverhans(model, x, y_target=None):
-    # sometimes gets stuck -- why?!
     from cleverhans.attacks import FastGradientMethod
     from cleverhans.utils_keras import KerasModelWrapper
 
