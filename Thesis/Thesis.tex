@@ -331,7 +331,7 @@ As malicious versions or wrong combinations of Tensorflow and cuDNN versions oft
 
 \begin{table}[h]
   \centering
-  \begin{tabular}{cccc}
+  \begin{tabular}{cl}
     \toprule
 Name                                    & Version   \\
     \midrule
@@ -369,18 +369,20 @@ The most important attack, defense strategy and model parameters are presented i
 
 \begin{table}[h]
   \centering
-  \begin{tabular}{cccc}
+  \begin{tabular}{ll}
     \toprule
 			Parameter			& Value   \\
     \midrule
 			$\lambda$								& 0				\\
 			$\alpha$								& 0				\\
+			$\epsilon$ FGSM					& 0.05		\\
 			
-			Validation Accuracy			& 1234		\\ %todo
-			Adv Accuracy - FGSM			& 1234 		\\
-			Adv Accuracy - SPA			& 1234		\\
+			Validation Accuracy			& 0.961		\\ %todo
+			Adv Accuracy - FGSM			& 0.342		\\
+			Adv Accuracy - SPA			& 0.898		\\
 			
-			Avg Input Gradient			& 1234		\\
+			Avg Input Gradient			& 21.575	\\
+			Max Input Gradient			& 7156.949\\
     \bottomrule
   \end{tabular}
 \end{table}
@@ -404,21 +406,22 @@ The most important attack, defense strategy and model parameters are presented i
 \end{figure}
 
 \subsection{Alexnet with Adversarial Training}
-
 \begin{table}[h]
   \centering
-  \begin{tabular}{cccc}
+  \begin{tabular}{ll}
     \toprule
 			Parameter			& Value   \\
     \midrule
 			$\lambda$								& 0				\\
 			$\alpha$								& 0.5			\\
+			$\epsilon$ FGSM					& 0.05		\\
 			
-			Validation Accuracy			& 1234		\\ %todo
-			Adv Accuracy - FGSM			& 1234 		\\
-			Adv Accuracy - SPA			& 1234		\\
+			Validation Accuracy			& 0.947		\\
+			Adv Accuracy - FGSM			& 0.633 	\\
+			Adv Accuracy - SPA			& 0.898		\\
 			
-			Avg Input Gradient			& 1234		\\
+			Avg Input Gradient			& 34.878	\\
+			Max Input Gradient 			& 4473.322\\
     \bottomrule
   \end{tabular}
 \end{table}
@@ -446,18 +449,20 @@ The most important attack, defense strategy and model parameters are presented i
 
 \begin{table}[h]
   \centering
-  \begin{tabular}{cccc}
+  \begin{tabular}{ll}
     \toprule
 			Parameter			& Value   \\
     \midrule
 			$\lambda$								& 0.15		\\
 			$\alpha$								& 0				\\
+			$\epsilon$ FGSM					& 0.05		\\
 			
-			Validation Accuracy			& 1234		\\ %todo
-			Adv Accuracy - FGSM			& 1234 		\\
-			Adv Accuracy - SPA			& 1234		\\
+			Validation Accuracy			& 0.949		\\
+			Adv Accuracy - FGSM			& 0.375		\\
+			Adv Accuracy - SPA			& 0.922		\\
 			
-			Avg Input Gradient			& 1234		\\
+			Avg Input Gradient			& 2.926		\\
+			Max Input Gradient			& 520.662 \\
     \bottomrule
   \end{tabular}
 \end{table}
@@ -484,18 +489,20 @@ The most important attack, defense strategy and model parameters are presented i
 
 \begin{table}[h]
   \centering
-  \begin{tabular}{cccc}
+  \begin{tabular}{ll}
     \toprule
 			Parameter			& Value   \\
     \midrule
 			$\lambda$								& 0.15		\\
 			$\alpha$								& 0.5			\\
+			$\epsilon$ FGSM					& 0.05		\\
 			
-			Validation Accuracy			& 1234			\\ %todo
-			Adv Accuracy - FGSM			& 1234 			\\
-			Adv Accuracy - SPA			& 1234			\\
+			Validation Accuracy			& 0.904		\\%todo: next 5 lines
+			Adv Accuracy - FGSM			& 0.604		\\
+			Adv Accuracy - SPA			& 0.883		\\
 			
-			Avg Input Gradient			& 1234			\\
+			Avg Input Gradient			& 22.241	\\
+			Max Input Gradient			& 1671.804\\
     \bottomrule
   \end{tabular}
 \end{table}

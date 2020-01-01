@@ -100,11 +100,14 @@ def generate_adversarials_OPA(model, x, y):
 
     attack = SinglePixelAttack(keras_model)
 
+    print("performing one pixel attack...")
+
     for i in range(len(x)):
         img = attack(x[i], np.argmax(y[i]))
         if np.any(img):
             advs.append(img)
             true_labels.append(y[i])
+        print(i, "/", len(x))
 
     return np.array(advs), np.array(true_labels)
 

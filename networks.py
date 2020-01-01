@@ -227,8 +227,6 @@ def measure_input_gradient(model, x, y):
 
     temp = -y_placeholder * tf.log(output)
 
-    categorical_crossentropy = tf.reduce_sum(temp, -1)
-
     grad = tf.gradients(temp, model.input)[0]
 
     sum_grad = tf.reduce_sum(grad, [1, 2, 3])
@@ -238,27 +236,16 @@ def measure_input_gradient(model, x, y):
     sess = tf.keras.backend.get_session()
 
     batch_size = 512
-    ces = []
 
+    input_gradients = []
     for i in range(int(len(x) / batch_size) + 1):
-        ces.extend(categorical_crossentropy.eval(session=sess, feed_dict={
-            model.input: x[i * batch_size:min((i + 1) * batch_size, len(x))],
-            y_placeholder: y[i * batch_size:min((i + 1) * batch_size, len(x))]}))
-
-    print("avg categorical crossentropy: ", np.average(ces))
-
-    pens = []
-    for i in range(int(len(x) / batch_size) + 1):
-        pens.extend(
+        input_gradients.extend(
             sum_grad2.eval(session=sess, feed_dict={model.input: x[i * batch_size:min((i + 1) * batch_size, len(x))],
                                                     y_placeholder: y[
                                                                    i * batch_size:min((i + 1) * batch_size, len(x))]}))
-    print("avg input gradient: ", np.average(pens))
 
-    losses = np.multiply(pens, LAMBDA) + ces
-
-    print("avg loss: ", np.average(losses))
-
+    print("avg input gradient: ", np.average(input_gradients))
+    print("max input gradient: ", np.max(input_gradients))
     return
 
 
@@ -278,10 +265,12 @@ def evaluate_model(model, x, y):
 
     print("adv fgsm acc: ", acc)
 
-    OPA_SAMPLES = 32
+    OPA_SAMPLES = 128
 
     adv_opa, true_labels = get_manipulated_data(x[:OPA_SAMPLES], model, 'OPA', y_original=y[:OPA_SAMPLES])
 
     _, acc = model.evaluate(adv_opa, true_labels)
 
-    print("adv opa acc: ", 1 - (len(adv_opa) / OPA_SAMPLES))
+    print("found one pixel adversarials for ", len(adv_opa), " from ", OPA_SAMPLES, ", rate=",
+          (OPA_SAMPLES - len(adv_opa)) / OPA_SAMPLES)
+    print("accuracy among OPA - SAMPLES: ", acc)
