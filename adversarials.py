@@ -37,7 +37,7 @@ def transform_to_target_BIM(model, x, y_target, eps, iterations):
     from cleverhans.attacks import BasicIterativeMethod
     from cleverhans.utils_keras import KerasModelWrapper
 
-    x_placeholder = tf.placeholder(tf.float32, shape=(None, 64, 64, 3))
+    x_placeholder = tf.compat.v1.placeholder(tf.float32, shape=(None, 64, 64, 3))
 
     wrap = KerasModelWrapper(model)
     attack = BasicIterativeMethod(wrap)
@@ -49,7 +49,7 @@ def transform_to_target_BIM(model, x, y_target, eps, iterations):
 
     x_adv = attack.generate(x_placeholder, **attack_params)
 
-    sess = tf.keras.backend.get_session()
+    sess = tf.compat.v1.keras.backend.get_session()
 
     adv_images = x_adv.eval(session=sess, feed_dict={x_placeholder: x})
 
@@ -107,7 +107,6 @@ def generate_adversarials_OPA(model, x, y):
         if np.any(img):
             advs.append(img)
             true_labels.append(y[i])
-        print(i, "/", len(x))
 
     return np.array(advs), np.array(true_labels)
 
@@ -116,8 +115,8 @@ def generate_adversarials_fgsm_cleverhans(model, x, y_target=None):
     from cleverhans.attacks import FastGradientMethod
     from cleverhans.utils_keras import KerasModelWrapper
 
-    x_placeholder = tf.placeholder(tf.float32, shape=(None, 64, 64, 3))
-    y_target_placeholder = tf.placeholder(tf.float32, shape=(None, 43))
+    x_placeholder = tf.compat.v1.placeholder(tf.float32, shape=(None, 64, 64, 3))
+    y_target_placeholder = tf.compat.v1.placeholder(tf.float32, shape=(None, 43))
 
     wrap = KerasModelWrapper(model)
     attack = FastGradientMethod(wrap)
@@ -133,10 +132,9 @@ def generate_adversarials_fgsm_cleverhans(model, x, y_target=None):
 
     adv_images = []
 
-    sess = tf.keras.backend.get_session()
+    sess = tf.compat.v1.keras.backend.get_session()
 
     for i in range(int(len(x) / batch_size) + 1):
-        print("generating adversarials batch", i, "/", int(len(x) / batch_size))
         start = i * batch_size
         end = min((i + 1) * batch_size, len(x))
 

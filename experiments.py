@@ -3,15 +3,34 @@ from report import Report
 from adversarials import get_manipulated_data
 
 
-def confusion_matrix(labels, architecture, method, epsilon, iterations, adversarial):
-    # example for labels: "0,1,2,3" or "12, 13, 14, 15"
-    labels = [int(s) for s in labels.replace(" ", "").split(",")]
+def perform_confusion_matrix(architecture, data_tuple, lam):
 
-    model, xtrain, ytrain, xtest, ytest, result_folder = prepare_data_and_model(architecture, method, adversarial)
+    EPSILON_BIM = 0.03
+    ITERATIONS_BIM = 15
+
+    confusion_matrix(architecture, data_tuple, EPSILON_BIM, ITERATIONS_BIM, 0, False)
+    confusion_matrix(architecture, data_tuple, EPSILON_BIM, ITERATIONS_BIM, lam, False)
+    confusion_matrix(architecture, data_tuple, EPSILON_BIM, ITERATIONS_BIM, 0, True)
+    confusion_matrix(architecture, data_tuple, EPSILON_BIM, ITERATIONS_BIM, lam, True)
+
+
+def confusion_matrix(architecture, data_tuple, epsilon, iterations, lam, adversarial):
+    LABELS_SIMILAR = [0, 1, 2, 3]
+    LABELS_DIFFERENT = [12, 13, 14, 15]
+
+    xtrain, ytrain, xtest, ytest, result_folder = data_tuple
+
+    print("Performing for ", architecture, " lambda=", lam, ", adversarial=", str(adversarial))
+    print("Attack-params: eps: ", epsilon, ", iterations: ", iterations)
+
+    model = prepare_model(architecture, xtrain, ytrain, xtest, ytest, result_folder, lam, adversarial)
 
     evaluate_model(model, xtest, ytest)
 
-    plot_confusion_matrix(labels, model, xtest, ytest, epsilon, iterations)
+    text = architecture + " lambda: " + str(lam) + " adversarial: " + str(adversarial)
+
+    plot_confusion_matrix(LABELS_SIMILAR, model, xtest, ytest, epsilon, iterations, text)
+    plot_confusion_matrix(LABELS_DIFFERENT, model, xtest, ytest, epsilon, iterations, text)
 
 
 def create_target_vector(labels):
@@ -22,7 +41,8 @@ def create_target_vector(labels):
 
 def iterative_adversarial_training(architecture, method, iterations=10, targeted=False):
 
-    model, xtrain, ytrain, xtest, ytest, result_folder = prepare_data_and_model(architecture, method)
+    model, xtrain, ytrain, xtest, ytest, result_folder = \
+        prepare_data(architecture, "iterative_adversarial_training", method)
 
     # To be able to call the model in the custom loss, we need to call it once
     # before, see https://github.com/tensorflow/tensorflow/issues/23769
@@ -55,7 +75,7 @@ def iterative_adversarial_training(architecture, method, iterations=10, targeted
         report.report()
 
 
-def plot_confusion_matrix(labels, model, x, y, eps, iterations):
+def plot_confusion_matrix(labels, model, x, y, eps, iterations, text):
     from adversarials import transform_to_target_BIM
     from preprocessing import signnames
 
@@ -85,6 +105,8 @@ def plot_confusion_matrix(labels, model, x, y, eps, iterations):
              fontsize=20,
              rotation='vertical',
              transform=axs[1, 0].transAxes)
+
+    plt.text(0, -0.3, text, fontsize=20, transform=axs[3, 0].transAxes)
 
     for r in range(n):
         adv_x = transform_to_target_BIM(model, input_images[r], targets, eps, iterations)
