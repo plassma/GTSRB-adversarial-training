@@ -128,7 +128,7 @@ def generate_adversarials_fgsm_cleverhans(model, x, y_target=None):
     x_adv = attack.generate(x_placeholder, **attack_params)
     x_adv = tf.stop_gradient(x_adv)
 
-    batch_size = 1024
+    batch_size = 512
 
     adv_images = []
 

@@ -10,7 +10,7 @@ from heatmap import grad_CAM_plus
 from preprocessing import signnames
 
 SAMPLES = 100
-BATCH_SIZE = 1024
+BATCH_SIZE = 512
 
 
 class Report:

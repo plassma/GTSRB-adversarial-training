@@ -224,7 +224,7 @@ def train_model(model, xtrain, ytrain, xtest, ytest, architecture, lam, adversar
                   validation_data=(xtest, ytest),
                   epochs=EPOCHS_TRAINING,
                   callbacks=[LearningRateScheduler(lr_schedule), csv_logger, checkpoint],
-                  verbose=0)
+                  verbose=1)
 
 
 def measure_input_gradient(model, x, y):
@@ -244,7 +244,7 @@ def measure_input_gradient(model, x, y):
 
     sess = tf.compat.v1.keras.backend.get_session()
 
-    batch_size = 512
+    batch_size = 128
 
     input_gradients = []
     for i in range(int(len(x) / batch_size) + 1):
@@ -260,7 +260,7 @@ def measure_input_gradient(model, x, y):
 
 def evaluate_model(model, x, y):
     from adversarials import get_manipulated_data
-    BATCH_SIZE = 1024
+    BATCH_SIZE = 128
 
     _, acc = model.evaluate(x, y, verbose=0, batch_size=BATCH_SIZE)
 
