@@ -2,9 +2,10 @@ from networks import *
 from report import Report
 from adversarials import get_manipulated_data
 
+THESIS_PATH = "Thesis\\graphics\\Results\\confusion_matrix\\"
+
 
 def perform_confusion_matrix(architecture, data_tuple, lam):
-
     EPSILON_BIM = 0.03
     ITERATIONS_BIM = 15
 
@@ -27,10 +28,29 @@ def confusion_matrix(architecture, data_tuple, epsilon, iterations, lam, adversa
 
     evaluate_model(model, xtest, ytest)
 
-    text = architecture + " lambda: " + str(lam) + " adversarial: " + str(adversarial)
+    text = architecture + r", $\lambda$: " + str(lam) + r", $\alpha$: " + str(0.5 if adversarial else 0) + \
+        r", $\epsilon_{BIM}: $" + str(epsilon) + r", $iter_{BIM}$:" + str(iterations)
+
+    export_to_thesis = False
+    plot_path = os.path.join(THESIS_PATH,
+                             architecture + ("_gradreg" if lam > 0 else "") + ("_adv" if adversarial else ""))
+
+    os.makedirs(plot_path, exist_ok=True)
 
     plot_confusion_matrix(LABELS_SIMILAR, model, xtest, ytest, epsilon, iterations, text)
+
+    if export_to_thesis:
+        plt.savefig(os.path.join(plot_path, "similar.png"))
+    else:
+        plt.show()
+
     plot_confusion_matrix(LABELS_DIFFERENT, model, xtest, ytest, epsilon, iterations, text)
+
+    if export_to_thesis:
+        plt.savefig(os.path.join(plot_path,
+                                "different.png"))
+    else:
+        plt.show()
 
 
 def create_target_vector(labels):
@@ -40,7 +60,6 @@ def create_target_vector(labels):
 
 
 def iterative_adversarial_training(architecture, method, iterations=10, targeted=False):
-
     model, xtrain, ytrain, xtest, ytest, result_folder = \
         prepare_data(architecture, "iterative_adversarial_training", method)
 
@@ -51,7 +70,6 @@ def iterative_adversarial_training(architecture, method, iterations=10, targeted
     report = Report(result_folder, architecture)
 
     for run in range(iterations):
-
         y_adv_test_target = create_target_vector(ytest) if targeted else None
 
         x_adv_test = get_manipulated_data(xtest, model, method, y_adv_test_target,
@@ -125,4 +143,3 @@ def plot_confusion_matrix(labels, model, x, y, eps, iterations, text):
                 ax.imshow(adv_x[c])
             else:
                 ax.imshow(input_images[r, c])
-    plt.show()

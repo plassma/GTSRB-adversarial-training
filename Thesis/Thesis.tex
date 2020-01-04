@@ -365,6 +365,169 @@ These trained models will be attacked using the targeted Basic Iterative Method,
 The following sections contain the results of the experiment, each heading for a different combination of model and defense strategy.
 The most important attack, defense strategy and model parameters are presented in a table for each combination of model architecture and defense strategy.
 
+\subsection{lenet-5 with no defenses implemented}
+
+\begin{table}[h]
+  \centering
+  \begin{tabular}{ll}
+    \toprule
+			Parameter			& Value   \\
+    \midrule
+			$\lambda$								& 0				\\
+			$\alpha$								& 0				\\
+			$\epsilon$ FGSM					& 0.05		\\
+			
+			Validation Accuracy			& 0.880		\\ 
+			Adv Accuracy - FGSM			& 0.179		\\
+%			Adv Accuracy - SPA			& 0.898		\\
+			
+			Avg Input Gradient			& 19.134	\\
+			Max Input Gradient			& 2460.131\\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+
+\begin{figure}[h]
+  \begin{subfigure}[b]{0.75\columnwidth}
+		\centering
+    \includegraphics[width=\textwidth]{Results/confusion_matrix/lenet-5/similar}
+    \subcaption{Targeted BIM for similar Images}
+    \label{fig:exp:cm:lenet-5:similar}
+  \end{subfigure}
+  \begin{subfigure}[b]{0.75\columnwidth}
+		\centering
+    \includegraphics[width=\textwidth]{Results/confusion_matrix/lenet-5/different}
+    \subcaption{Targeted BIM for different Images}
+    \label{fig:exp:cm:lenet-5:different}
+  \end{subfigure}
+  \caption{Targeted Basic Iterative Method, $\epsilon = 0.03$, 15 iterations}
+  \label{fig:exp:cm:lenet-5}
+\end{figure}
+
+\subsection{lenet-5 with Input Gradient Regularization}
+
+\begin{table}[h]
+  \centering
+  \begin{tabular}{ll}
+    \toprule
+			Parameter			& Value   					\\
+    \midrule
+			$\lambda$								& 0.4			\\
+			$\alpha$								& 0				\\
+			$\epsilon$ FGSM					& 0.05		\\
+			
+			Validation Accuracy			& 0.786		\\ 
+			Adv Accuracy - FGSM			& 0.194		\\
+%			Adv Accuracy - SPA			& 0.898		\\
+			
+			Avg Input Gradient			& 11.814	\\
+			Max Input Gradient			& 542.744	\\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+
+\begin{figure}[h]
+  \begin{subfigure}[b]{0.75\columnwidth}
+		\centering
+    \includegraphics[width=\textwidth]{Results/confusion_matrix/lenet-5_gradreg/similar}
+    \subcaption{Targeted BIM for similar Images}
+    \label{fig:exp:cm:lenet-5_gradreg:similar}
+  \end{subfigure}
+  \begin{subfigure}[b]{0.75\columnwidth}
+		\centering
+    \includegraphics[width=\textwidth]{Results/confusion_matrix/lenet-5_gradreg/different}
+    \subcaption{Targeted BIM for different Images}
+    \label{fig:exp:cm:lenet-5_gradreg:different}
+  \end{subfigure}
+  \caption{Targeted Basic Iterative Method, $\epsilon = 0.03$, 15 iterations}
+  \label{fig:exp:cm:lenet-5_gradreg}
+\end{figure}
+
+\subsection{lenet-5 with Adversarial Training}
+
+\begin{table}[h]
+  \centering
+  \begin{tabular}{ll}
+    \toprule
+			Parameter			& Value   \\
+    \midrule
+			$\lambda$								& 0				\\
+			$\alpha$								& 0.5			\\
+			$\epsilon$ FGSM					& 0.05		\\
+			
+			Validation Accuracy			& 0.778		\\ 
+			Adv Accuracy - FGSM			& 0.396		\\
+			%Adv Accuracy - SPA			& 0.898		\\
+			
+			Avg Input Gradient			& 37.838	\\
+			Max Input Gradient			& 2701.587\\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+
+\begin{figure}[h]
+  \begin{subfigure}[b]{0.75\columnwidth}
+		\centering
+    \includegraphics[width=\textwidth]{Results/confusion_matrix/lenet-5_adv/similar}
+    \subcaption{Targeted BIM for similar Images}
+    \label{fig:exp:cm:lenet-5_adv:similar}
+  \end{subfigure}
+  \begin{subfigure}[b]{0.75\columnwidth}
+		\centering
+    \includegraphics[width=\textwidth]{Results/confusion_matrix/lenet-5_adv/different}
+    \subcaption{Targeted BIM for different Images}
+    \label{fig:exp:cm:lenet-5_adv:different}
+  \end{subfigure}
+  \caption{Targeted Basic Iterative Method, $\epsilon = 0.03$, 15 iterations}
+  \label{fig:exp:cm:lenet-5_adv}
+\end{figure}
+
+\subsection{lenet-5 with Adversarial Training and Input Gradient Regularization}
+
+\begin{table}[h]
+  \centering
+  \begin{tabular}{ll}
+    \toprule
+			Parameter			& Value   \\
+    \midrule
+			$\lambda$								& 0.4			\\
+			$\alpha$								& 0.5			\\
+			$\epsilon$ FGSM					& 0.05		\\
+			
+			Validation Accuracy			& 0.740		\\ 
+			Adv Accuracy - FGSM			& 0.400		\\
+			%Adv Accuracy - SPA			& 0.898		\\
+			
+			Avg Input Gradient			& 16.731	\\
+			Max Input Gradient			& 772.798	\\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+
+\begin{figure}[h]
+  \begin{subfigure}[b]{0.75\columnwidth}
+		\centering
+    \includegraphics[width=\textwidth]{Results/confusion_matrix/lenet-5_gradreg_adv/similar}
+    \subcaption{Targeted BIM for similar Images}
+    \label{fig:exp:cm:lenet-5_gradreg_adv:similar}
+  \end{subfigure}
+  \begin{subfigure}[b]{0.75\columnwidth}
+		\centering
+    \includegraphics[width=\textwidth]{Results/confusion_matrix/lenet-5_gradreg_adv/different}
+    \subcaption{Targeted BIM for different Images}
+    \label{fig:exp:cm:lenet-5_gradreg_adv:different}
+  \end{subfigure}
+  \caption{Targeted Basic Iterative Method, $\epsilon = 0.03$, 15 iterations}
+  \label{fig:exp:cm:lenet-5_gradreg_adv}
+\end{figure}
+
+
+
+
 \subsection{Alexnet with no defenses implemented}
 
 \begin{table}[h]
@@ -379,7 +542,7 @@ The most important attack, defense strategy and model parameters are presented i
 			
 			Validation Accuracy			& 0.961		\\ %todo
 			Adv Accuracy - FGSM			& 0.342		\\
-			Adv Accuracy - SPA			& 0.898		\\
+			%Adv Accuracy - SPA			& 0.898		\\
 			
 			Avg Input Gradient			& 21.575	\\
 			Max Input Gradient			& 7156.949\\
@@ -389,17 +552,57 @@ The most important attack, defense strategy and model parameters are presented i
 
 
 \begin{figure}[h]
-  \begin{subfigure}[b]{0.5\columnwidth}
+  \begin{subfigure}[b]{0.75\columnwidth}
 		\centering
     \includegraphics[width=\textwidth]{Results/confusion_matrix/alex/similar}%eps=0.01, iter=15
     \subcaption{Targeted BIM for similar Images}
     \label{fig:exp:cm:alex:similar}
   \end{subfigure}
-  \begin{subfigure}[b]{0.5\columnwidth}
+  \begin{subfigure}[b]{0.75\columnwidth}
 		\centering
     \includegraphics[width=\textwidth]{Results/confusion_matrix/alex/different}
     \subcaption{Targeted BIM for different Images}
     \label{fig:exp:cm:alex:different}
+  \end{subfigure}
+  \caption{Targeted Basic Iterative Method, $\epsilon = 0.01$, 15 iterations}
+  \label{fig:intro} % \label has to be placed AFTER \caption (or \subcaption) to produce correct cross-references.
+\end{figure}
+
+\subsection{Alexnet with Input Gradient Regularization}
+
+\begin{table}[h]
+  \centering
+  \begin{tabular}{ll}
+    \toprule
+			Parameter			& Value   \\
+    \midrule
+			$\lambda$								& 0.15		\\
+			$\alpha$								& 0				\\
+			$\epsilon$ FGSM					& 0.05		\\
+			
+			Validation Accuracy			& 0.949		\\
+			Adv Accuracy - FGSM			& 0.375		\\
+			%Adv Accuracy - SPA			& 0.922		\\
+			
+			Avg Input Gradient			& 2.926		\\
+			Max Input Gradient			& 520.662 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+
+\begin{figure}[h]
+  \begin{subfigure}[b]{0.75\columnwidth}
+		\centering
+    \includegraphics[width=\textwidth]{Results/confusion_matrix/alex_gradreg/similar}%eps=0.01, iter=15
+    \subcaption{Targeted BIM for similar Images}
+    \label{fig:exp:cm:alex_gradreg:similar}
+  \end{subfigure}
+  \begin{subfigure}[b]{0.75\columnwidth}
+		\centering
+    \includegraphics[width=\textwidth]{Results/confusion_matrix/alex_gradreg/different}
+    \subcaption{Targeted BIM for different Images}
+    \label{fig:exp:cm:alex_gradreg:different}
   \end{subfigure}
   \caption{Targeted Basic Iterative Method, $\epsilon = 0.01$, 15 iterations}
   \label{fig:intro} % \label has to be placed AFTER \caption (or \subcaption) to produce correct cross-references.
@@ -418,7 +621,7 @@ The most important attack, defense strategy and model parameters are presented i
 			
 			Validation Accuracy			& 0.947		\\
 			Adv Accuracy - FGSM			& 0.633 	\\
-			Adv Accuracy - SPA			& 0.898		\\
+			%Adv Accuracy - SPA			& 0.898		\\
 			
 			Avg Input Gradient			& 34.878	\\
 			Max Input Gradient 			& 4473.322\\
@@ -428,13 +631,13 @@ The most important attack, defense strategy and model parameters are presented i
 
 
 \begin{figure}[h]
-  \begin{subfigure}[b]{0.5\columnwidth}
+  \begin{subfigure}[b]{0.75\columnwidth}
 		\centering
-    \includegraphics[width=\textwidth]{Results/confusion_matrix/alex_adv/similar}%eps=0.01, iter=15
+    \includegraphics[width=\textwidth]{Results/confusion_matrix/alex_adv/similar}
     \subcaption{Targeted BIM for similar Images}
     \label{fig:exp:cm:alex_adv:similar}
   \end{subfigure}
-  \begin{subfigure}[b]{0.5\columnwidth}
+  \begin{subfigure}[b]{0.75\columnwidth}
 		\centering
     \includegraphics[width=\textwidth]{Results/confusion_matrix/alex_adv/different}
     \subcaption{Targeted BIM for different Images}
@@ -444,46 +647,6 @@ The most important attack, defense strategy and model parameters are presented i
   \label{fig:intro} % \label has to be placed AFTER \caption (or \subcaption) to produce correct cross-references.
 \end{figure}
 
-
-\subsection{Alexnet with Input Gradient Regularization}
-
-\begin{table}[h]
-  \centering
-  \begin{tabular}{ll}
-    \toprule
-			Parameter			& Value   \\
-    \midrule
-			$\lambda$								& 0.15		\\
-			$\alpha$								& 0				\\
-			$\epsilon$ FGSM					& 0.05		\\
-			
-			Validation Accuracy			& 0.949		\\
-			Adv Accuracy - FGSM			& 0.375		\\
-			Adv Accuracy - SPA			& 0.922		\\
-			
-			Avg Input Gradient			& 2.926		\\
-			Max Input Gradient			& 520.662 \\
-    \bottomrule
-  \end{tabular}
-\end{table}
-
-
-\begin{figure}[h]
-  \begin{subfigure}[b]{0.5\columnwidth}
-		\centering
-    \includegraphics[width=\textwidth]{Results/confusion_matrix/alex_gradreg/similar}%eps=0.01, iter=15
-    \subcaption{Targeted BIM for similar Images}
-    \label{fig:exp:cm:alex_gradreg:similar}
-  \end{subfigure}
-  \begin{subfigure}[b]{0.5\columnwidth}
-		\centering
-    \includegraphics[width=\textwidth]{Results/confusion_matrix/alex_gradreg/different}
-    \subcaption{Targeted BIM for different Images}
-    \label{fig:exp:cm:alex_gradreg:different}
-  \end{subfigure}
-  \caption{Targeted Basic Iterative Method, $\epsilon = 0.01$, 15 iterations}
-  \label{fig:intro} % \label has to be placed AFTER \caption (or \subcaption) to produce correct cross-references.
-\end{figure}
 
 \subsection{Alexnet with Adversarial Training and Input Gradient Regularization}
 
@@ -509,23 +672,107 @@ The most important attack, defense strategy and model parameters are presented i
 
 
 \begin{figure}[h]
-  \begin{subfigure}[b]{0.5\columnwidth}
+  \begin{subfigure}[b]{0.75\columnwidth}
 		\centering
-    \includegraphics[width=\textwidth]{Results/confusion_matrix/alex_adv_gradreg/similar}%eps=0.01, iter=15
+    \includegraphics[width=\textwidth]{Results/confusion_matrix/alex_gradreg_adv/similar}%eps=0.01, iter=15
     \subcaption{Targeted BIM for similar Images}
-    \label{fig:exp:cm:alex_adv_gradreg:similar}
+    \label{fig:exp:cm:alex_gradreg_adv:similar}
   \end{subfigure}
-  \begin{subfigure}[b]{0.5\columnwidth}
+  \begin{subfigure}[b]{0.75\columnwidth}
 		\centering
-    \includegraphics[width=\textwidth]{Results/confusion_matrix/alex_adv_gradreg/different}
+    \includegraphics[width=\textwidth]{Results/confusion_matrix/alex_gradreg_adv/different}
     \subcaption{Targeted BIM for different Images}
-    \label{fig:exp:cm:alex_adv_gradreg:different}
+    \label{fig:exp:cm:alex_gradreg_adv:different}
   \end{subfigure}
   \caption{Targeted Basic Iterative Method, $\epsilon = 0.01$, 15 iterations}
   \label{fig:intro} % \label has to be placed AFTER \caption (or \subcaption) to produce correct cross-references.
 \end{figure}
 
-\subsection{ResNet50 with Adversarial Training}
+
+
+\subsection{vgg19 with no defenses implemented}
+
+\begin{table}[h]
+  \centering
+  \begin{tabular}{ll}
+    \toprule
+			Parameter			& Value   \\
+    \midrule
+			$\lambda$								& 0				\\
+			$\alpha$								& 0				\\
+			$\epsilon$ FGSM					& 0.05		\\
+			
+			Validation Accuracy			& 0.967		\\ 
+			Adv Accuracy - FGSM			& 0.222		\\
+			%Adv Accuracy - SPA			& 0.898		\\
+			
+			Avg Input Gradient			& 0.385	\\
+			Max Input Gradient			& 257.897\\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+
+\begin{figure}[h]
+  \begin{subfigure}[b]{0.75\columnwidth}
+		\centering
+    \includegraphics[width=\textwidth]{Results/confusion_matrix/vgg19/similar}
+    \subcaption{Targeted BIM for similar Images}
+    \label{fig:exp:cm:vgg19:similar}
+  \end{subfigure}
+  \begin{subfigure}[b]{0.75\columnwidth}
+		\centering
+    \includegraphics[width=\textwidth]{Results/confusion_matrix/vgg19/different}
+    \subcaption{Targeted BIM for different Images}
+    \label{fig:exp:cm:vgg19:different}
+  \end{subfigure}
+  \caption{Targeted Basic Iterative Method, $\epsilon = 0.03$, 15 iterations}
+  \label{fig:exp:cm:vgg19}
+\end{figure}
+
+
+
+\subsection{vgg19 with Input Gradient Regularization}
+
+\begin{table}[h]
+  \centering
+  \begin{tabular}{ll}
+    \toprule
+			Parameter			& Value   \\
+    \midrule
+			$\lambda$								& 0.002				\\
+			$\alpha$								& 0				\\
+			$\epsilon$ FGSM					& 0.05		\\
+			
+			Validation Accuracy			& 0.973		\\ 
+			Adv Accuracy - FGSM			& 0.272		\\
+			%Adv Accuracy - SPA			& 0.898		\\
+			
+			Avg Input Gradient			& 0.199		\\
+			Max Input Gradient			& 201.795	\\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+
+\begin{figure}[h]
+  \begin{subfigure}[b]{0.75\columnwidth}
+		\centering
+    \includegraphics[width=\textwidth]{Results/confusion_matrix/vgg19_gradreg/similar}
+    \subcaption{Targeted BIM for similar Images}
+    \label{fig:exp:cm:vgg19_gradreg:similar}
+  \end{subfigure}
+  \begin{subfigure}[b]{0.75\columnwidth}
+		\centering
+    \includegraphics[width=\textwidth]{Results/confusion_matrix/vgg19_gradreg/different}
+    \subcaption{Targeted BIM for different Images}
+    \label{fig:exp:cm:vgg19_gradreg:different}
+  \end{subfigure}
+  \caption{Targeted Basic Iterative Method, $\epsilon = 0.03$, 15 iterations}
+  \label{fig:exp:cm:vgg19_gradreg}
+\end{figure}
+
+\subsection{vgg19 with Adversarial Training}
 
 \begin{table}[h]
   \centering
@@ -537,33 +784,236 @@ The most important attack, defense strategy and model parameters are presented i
 			$\alpha$								& 0.5			\\
 			$\epsilon$ FGSM					& 0.05		\\
 			
-			Validation Accuracy			& 0.957		\\
-			Adv Accuracy - FGSM			& 0.603		\\
-			Adv Accuracy - SPA			& ????		\\ %todo: include this val?
+			Validation Accuracy			& 0.967		\\ 
+			Adv Accuracy - FGSM			& 0.758		\\
+			%Adv Accuracy - SPA			& 0.898		\\
 			
-			Avg Input Gradient			& 13.359	\\
-			Max Input Gradient			& 3202.552\\
+			Avg Input Gradient			& 0.466	\\
+			Max Input Gradient			& 165.864\\
     \bottomrule
   \end{tabular}
 \end{table}
 
 
 \begin{figure}[h]
-  \begin{subfigure}[b]{0.5\columnwidth}
+  \begin{subfigure}[b]{0.75\columnwidth}
 		\centering
-    \includegraphics[width=\textwidth]{Results/confusion_matrix/alex_adv_gradreg/similar}%eps=0.01, iter=15
+    \includegraphics[width=\textwidth]{Results/confusion_matrix/vgg19_adv/similar}
     \subcaption{Targeted BIM for similar Images}
-    \label{fig:exp:cm:alex_adv_gradreg:similar}
+    \label{fig:exp:cm:vgg19_adv:similar}
   \end{subfigure}
-  \begin{subfigure}[b]{0.5\columnwidth}
+  \begin{subfigure}[b]{0.75\columnwidth}
 		\centering
-    \includegraphics[width=\textwidth]{Results/confusion_matrix/alex_adv_gradreg/different}
+    \includegraphics[width=\textwidth]{Results/confusion_matrix/vgg19_adv/different}
     \subcaption{Targeted BIM for different Images}
-    \label{fig:exp:cm:alex_adv_gradreg:different}
+    \label{fig:exp:cm:vgg19_adv:different}
   \end{subfigure}
-  \caption{Targeted Basic Iterative Method, $\epsilon = 0.01$, 15 iterations}
-  \label{fig:intro} % \label has to be placed AFTER \caption (or \subcaption) to produce correct cross-references.
+  \caption{Targeted Basic Iterative Method, $\epsilon = 0.03$, 15 iterations}
+  \label{fig:exp:cm:vgg19_adv}
 \end{figure}
+
+\subsection{vgg19 with Input Gradient Regularization and Adversarial Training}
+
+\begin{table}[h]
+  \centering
+  \begin{tabular}{ll}
+    \toprule
+			Parameter			& Value   \\
+    \midrule
+			$\lambda$								& 0.002				\\
+			$\alpha$								& 0.5					\\
+			$\epsilon$ FGSM					& 0.05		\\
+			
+			Validation Accuracy			& 0.973		\\ 
+			Adv Accuracy - FGSM			& 0.777		\\
+			%Adv Accuracy - SPA			& 0.898		\\
+			
+			Avg Input Gradient			& 0.356	\\
+			Max Input Gradient			& 139.915\\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+
+\begin{figure}[h]
+  \begin{subfigure}[b]{0.75\columnwidth}
+		\centering
+    \includegraphics[width=\textwidth]{Results/confusion_matrix/vgg19_gradreg_adv/similar}
+    \subcaption{Targeted BIM for similar Images}
+    \label{fig:exp:cm:vgg19_gradreg_adv:similar}
+  \end{subfigure}
+  \begin{subfigure}[b]{0.75\columnwidth}
+		\centering
+    \includegraphics[width=\textwidth]{Results/confusion_matrix/vgg19_gradreg_adv/different}
+    \subcaption{Targeted BIM for different Images}
+    \label{fig:exp:cm:vgg19_gradreg_adv:different}
+  \end{subfigure}
+  \caption{Targeted Basic Iterative Method, $\epsilon = 0.03$, 15 iterations}
+  \label{fig:exp:cm:vgg19_gradreg_adv}
+\end{figure}
+
+\subsection{ResNet50 with no defenses implemented}
+
+\begin{table}[h]
+  \centering
+  \begin{tabular}{ll}
+    \toprule
+			Parameter			& Value   \\
+    \midrule
+			$\lambda$								& 0				\\
+			$\alpha$								& 0				\\
+			$\epsilon$ FGSM					& 0.05		\\
+			
+			Validation Accuracy			& 0.978		\\ 
+			Adv Accuracy - FGSM			& 0.723		\\
+			%Adv Accuracy - SPA			& 0.898		\\
+			
+			Avg Input Gradient			& 5.456		\\
+			Max Input Gradient			& 8152.976\\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+
+\begin{figure}[h]
+  \begin{subfigure}[b]{0.75\columnwidth}
+		\centering
+    \includegraphics[width=\textwidth]{Results/confusion_matrix/resnet50/similar}
+    \subcaption{Targeted BIM for similar Images}
+    \label{fig:exp:cm:resnet50:similar}
+  \end{subfigure}
+  \begin{subfigure}[b]{0.75\columnwidth}
+		\centering
+    \includegraphics[width=\textwidth]{Results/confusion_matrix/resnet50/different}
+    \subcaption{Targeted BIM for different Images}
+    \label{fig:exp:cm:resnet50:different}
+  \end{subfigure}
+  \caption{Targeted Basic Iterative Method, $\epsilon = 0.03$, 15 iterations}
+  \label{fig:exp:cm:resnet50}
+\end{figure}
+
+\subsection{ResNet50 with Input Gradient Regularization}
+
+\begin{table}[h]
+  \centering
+  \begin{tabular}{ll}
+    \toprule
+			Parameter			& Value   \\
+    \midrule
+			$\lambda$								& 0.002				\\
+			$\alpha$								& 0				\\
+			$\epsilon$ FGSM					& 0.05		\\
+			
+			Validation Accuracy			& 0.984		\\ 
+			Adv Accuracy - FGSM			& 0.763		\\
+			%Adv Accuracy - SPA			& 0.898		\\
+			
+			Avg Input Gradient			& 1.004	\\
+			Max Input Gradient			& 871.882\\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+
+\begin{figure}[h]
+  \begin{subfigure}[b]{0.75\columnwidth}
+		\centering
+    \includegraphics[width=\textwidth]{Results/confusion_matrix/resnet50_gradreg/similar}
+    \subcaption{Targeted BIM for similar Images}
+    \label{fig:exp:cm:resnet50_gradreg:similar}
+  \end{subfigure}
+  \begin{subfigure}[b]{0.75\columnwidth}
+		\centering
+    \includegraphics[width=\textwidth]{Results/confusion_matrix/resnet50_gradreg/different}
+    \subcaption{Targeted BIM for different Images}
+    \label{fig:exp:cm:resnet50_gradreg:different}
+  \end{subfigure}
+  \caption{Targeted Basic Iterative Method, $\epsilon = 0.03$, 15 iterations}
+  \label{fig:exp:cm:resnet50_gradreg}
+\end{figure}
+
+
+\subsection{ResNet50 with Adversarial Training}
+
+\begin{table}[h]
+  \centering
+  \begin{tabular}{ll}
+    \toprule
+			Parameter			& Value   \\
+    \midrule
+			$\lambda$								& 0				\\
+			$\alpha$								& 0.5				\\
+			$\epsilon$ FGSM					& 0.05		\\
+			
+			Validation Accuracy			& 0.902		\\ 
+			Adv Accuracy - FGSM			& 0.634		\\
+			%Adv Accuracy - SPA			& 0.898		\\
+			
+			Avg Input Gradient			& 13.358	\\
+			Max Input Gradient			& 3202.522\\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+
+\begin{figure}[h]
+  \begin{subfigure}[b]{0.75\columnwidth}
+		\centering
+    \includegraphics[width=\textwidth]{Results/confusion_matrix/resnet50_adv/similar}
+    \subcaption{Targeted BIM for similar Images}
+    \label{fig:exp:cm:resnet50_gradreg_adv:similar}
+  \end{subfigure}
+  \begin{subfigure}[b]{0.75\columnwidth}
+		\centering
+    \includegraphics[width=\textwidth]{Results/confusion_matrix/resnet50_adv/different}
+    \subcaption{Targeted BIM for different Images}
+    \label{fig:exp:cm:resnet50_adv:different}
+  \end{subfigure}
+  \caption{Targeted Basic Iterative Method, $\epsilon = 0.03$, 15 iterations}
+  \label{fig:exp:cm:resnet50_adv}
+\end{figure}
+%%%begin: template
+%\subsection{xxx}
+%
+%\begin{table}[h]
+  %\centering
+  %\begin{tabular}{ll}
+    %\toprule
+			%Parameter			& Value   \\
+    %\midrule
+			%$\lambda$								& xxx				\\
+			%$\alpha$								& xxx				\\
+			%$\epsilon$ FGSM					& xxx		\\
+			%
+			%Validation Accuracy			& xxx		\\ 
+			%Adv Accuracy - FGSM			& xxx		\\
+			%Adv Accuracy - SPA			& 0.898		\\
+			%
+			%Avg Input Gradient			& xxx	\\
+			%Max Input Gradient			& xxx\\
+    %\bottomrule
+  %\end{tabular}
+%\end{table}
+%
+%
+%\begin{figure}[h]
+  %\begin{subfigure}[b]{0.75\columnwidth}
+		%\centering
+    %\includegraphics[width=\textwidth]{Results/confusion_matrix/xxx/similar}
+    %\subcaption{Targeted BIM for similar Images}
+    %\label{fig:exp:cm:xxx:similar}
+  %\end{subfigure}
+  %\begin{subfigure}[b]{0.75\columnwidth}
+		%\centering
+    %\includegraphics[width=\textwidth]{Results/confusion_matrix/xxx/different}
+    %\subcaption{Targeted BIM for different Images}
+    %\label{fig:exp:cm:xxx:different}
+  %\end{subfigure}
+  %\caption{Targeted Basic Iterative Method, $\epsilon = 0.03$, 15 iterations}
+  %\label{fig:exp:cm:xxx}
+%\end{figure}
+
+% end
 
 \backmatter
 

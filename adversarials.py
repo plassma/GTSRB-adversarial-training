@@ -70,7 +70,7 @@ def get_adversarial_loss(model, loss_function):
                    'clip_min': 0.,
                    'clip_max': 1.}
 
-    def regularized_adv_loss(y, preds):
+    def adv_loss(y, preds):
         # Cross-entropy on the legitimate examples
         cross_ent = loss_function(y, preds)
 
@@ -86,7 +86,7 @@ def get_adversarial_loss(model, loss_function):
     # turn learning phase back on
     tf.keras.backend.set_learning_phase(True)
 
-    return regularized_adv_loss
+    return adv_loss
 
 
 def generate_adversarials_OPA(model, x, y):

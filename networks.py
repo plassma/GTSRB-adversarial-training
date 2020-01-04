@@ -158,17 +158,11 @@ def lr_schedule(epoch):
     # decreasing learning rate depending on epoch
     return 0.001 * (0.1 ** int(epoch / EPOCHS_TRAINING))
 
-# best lambda found: 0.2 (alex)
+
 def get_regularization_loss(model, lam):
     def penalized_loss(target, output):
-        # scale preds so that the class probas of each sample sum to 1
-        output = output / tf.reduce_sum(output, -1, True)
-        epsilon_ = tf.constant(tf.keras.backend.epsilon(), output.dtype.base_dtype)
-        output = tf.clip_by_value(output, epsilon_, 1. - epsilon_)
 
-        temp = -target * tf.math.log(output)
-
-        categorical_crossentropy = tf.reduce_sum(temp, -1)  # shape: (?,)
+        categorical_crossentropy = tf.keras.losses.categorical_crossentropy(target, output)#tf.reduce_sum(temp, -1)  # shape: (?,)
 
         grad = tf.gradients(categorical_crossentropy, model.input)[0]
         grad2 = tf.square(grad)
