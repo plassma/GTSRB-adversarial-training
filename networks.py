@@ -164,17 +164,20 @@ def get_regularization_loss(model, lam):
 
         categorical_crossentropy = tf.keras.losses.categorical_crossentropy(target, output)#tf.reduce_sum(temp, -1)  # shape: (?,)
 
-        grad = tf.gradients(categorical_crossentropy, model.input)[0]
-        grad2 = tf.square(grad)
+        if lam:
+            grad = tf.gradients(categorical_crossentropy, model.input)[0]
+            grad2 = tf.square(grad)
 
-        sum_dim = tf.reduce_sum(grad2, [1, 2, 3])
+            sum_dim = tf.reduce_sum(grad2, [1, 2, 3])
 
-        return categorical_crossentropy + lam * sum_dim
+            return categorical_crossentropy + lam * sum_dim
+
+        return categorical_crossentropy
 
     return penalized_loss
 
 
-def train_model(model, xtrain, ytrain, xtest, ytest, architecture, lam, adversarial, run, result_folder=""):
+def train_model(model, xtrain, ytrain, xtest, ytest, architecture, lam, adversarial_loss, run, result_folder=""):
     """
     Trains a CNN for a given dataset
     :param model: initialized model
@@ -184,7 +187,7 @@ def train_model(model, xtrain, ytrain, xtest, ytest, architecture, lam, adversar
     :param ytest: labels for test images numbered from 0 to n
     :param architecture the architecture of the model to train
     :param lam lambda for input gradient regularization
-    :param adversarial whether to use FGSM adv loss
+    :param adversarial_loss whether to use FGSM adv loss
     :param run number of this training run
     :param result_folder: Save trained model to this directory
     :return: None
@@ -193,7 +196,7 @@ def train_model(model, xtrain, ytrain, xtest, ytest, architecture, lam, adversar
     from tensorflow.keras.callbacks import LearningRateScheduler, ModelCheckpoint
     from adversarials import get_adversarial_loss
 
-    adv = "_adv" if adversarial else "_"
+    adv = "_adv" if adversarial_loss else "_"
 
     modelpath = architecture + "_lam" + str(lam) + adv + str(run) + ".h5"
     modelpath = os.path.join(result_folder, modelpath)
@@ -203,9 +206,10 @@ def train_model(model, xtrain, ytrain, xtest, ytest, architecture, lam, adversar
 
     if run == 0:
         loss = get_regularization_loss(model, lam)
+
         sgd = SGD(lr=LEARNING_RATE, decay=1e-6, momentum=0.9, nesterov=True)
 
-        if adversarial:
+        if adversarial_loss:
             loss = get_adversarial_loss(model, loss)
 
         model.compile(loss=loss, optimizer=sgd, metrics=['accuracy'])

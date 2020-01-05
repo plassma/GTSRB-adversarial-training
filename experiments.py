@@ -59,9 +59,43 @@ def create_target_vector(labels):
     return np.concatenate((labels, [first]))
 
 
-def iterative_adversarial_training(architecture, method, iterations=10, targeted=False):
-    model, xtrain, ytrain, xtest, ytest, result_folder = \
-        prepare_data(architecture, "iterative_adversarial_training", method)
+def transform_to_batch_acc(accuracies):
+    batches = []
+
+    l = len(accuracies)
+
+    for i in range(l):
+        batch = []
+        for j in range(l):
+            if j >= len(accuracies[i]):
+                batch.append(float("nan"))
+            else:
+                batch.append(accuracies[i][j])
+        batches.append(batch)
+
+    return np.array(batches)
+
+
+def perform_iterative_adversarial_training(architecture, data_tuple):
+    accuracies_adv_data = iterative_adversarial_training(architecture, data_tuple, False, 3)
+    accuracies_adv_loss = iterative_adversarial_training(architecture, data_tuple, True, 3)
+
+    accuracies_adv_data_batches = transform_to_batch_acc(accuracies_adv_data)
+    accuracies_adv_loss_batches = transform_to_batch_acc(accuracies_adv_loss)
+
+    for i in range(len(accuracies_adv_loss)):
+        plt.plot(accuracies_adv_data_batches[i])
+    plt.plot()
+
+    for i in range(len(accuracies_adv_loss)):
+        plt.plot(accuracies_adv_loss_batches[i])
+    plt.plot()
+
+
+def iterative_adversarial_training(architecture, data_tuple, use_adv_loss=True, iterations=10, targeted=False):
+    xtrain, ytrain, xtest, ytest, result_folder = data_tuple
+
+    model = prepare_model(architecture, xtrain, ytrain, xtest, ytest, result_folder, 0, False)
 
     # To be able to call the model in the custom loss, we need to call it once
     # before, see https://github.com/tensorflow/tensorflow/issues/23769
@@ -72,25 +106,33 @@ def iterative_adversarial_training(architecture, method, iterations=10, targeted
     for run in range(iterations):
         y_adv_test_target = create_target_vector(ytest) if targeted else None
 
-        x_adv_test = get_manipulated_data(xtest, model, method, y_adv_test_target,
+        x_adv_test = get_manipulated_data(xtest, model, "FGSM", None, y_adv_test_target,
                                           result_folder, "advtest", architecture, run)
 
-        report.evaluate_accuracies(model, xtest, ytest, architecture, method, run)
+        report.evaluate_accuracies(model, xtest, ytest, architecture, "FGSM", run)
 
-        # y_adv_train_target = create_target_vector(ytrain) if targeted else None
-        # x_adv_train = get_manipulated_data(xtrain, model, method, y_adv_train_target,
-        #                                   result_folder, "advtrain", architecture, run)
+        report.add_data_before(model, xtest, ytest, x_adv_test)
 
-        y_adv_test = model.predict(x_adv_test)
+        if not use_adv_loss:
+            y_adv_train_target = create_target_vector(ytrain) if targeted else None
+            x_adv_train = get_manipulated_data(xtrain, model, "FGSM", None, y_adv_train_target,
+                                               result_folder, "advtrain", architecture, run)
 
-        report.add_data_before(model, xtest, ytest, x_adv_test, y_adv_test)
+            xtrain = np.concatenate((xtrain, x_adv_train))
+            ytrain = np.concatenate((ytrain, ytrain))
 
-        train_model(model, xtrain, ytrain, xtest, ytest, architecture, run + 1, True,
+        train_model(model, xtrain, ytrain, xtest, ytest, architecture, 0, use_adv_loss, run + 1,
                     result_folder=result_folder)
 
         report.add_data_after(model, xtest, x_adv_test)
 
         report.report()
+
+        if not use_adv_loss:
+            xtrain = xtrain[:int(len(xtrain) / 2)]
+            ytrain = ytrain[:int(len(ytrain) / 2)]
+
+    return report.accuracies
 
 
 def plot_confusion_matrix(labels, model, x, y, eps, iterations, text):

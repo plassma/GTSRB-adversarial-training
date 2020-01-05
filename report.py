@@ -24,6 +24,7 @@ class Report:
         self.architecture = architecture
         self.csv_file = open(os.path.join(result_folder, architecture, "accuracies.csv"), "w")
         self.accuracy_csv_writer = csv.writer(self.csv_file)
+        self.accuracies = []
 
         self.data = {}
 
@@ -35,7 +36,9 @@ class Report:
             result[i] = np.argmax(one_hot_arr[i])
         return result
 
-    def add_data_before(self, model, x, y, x_adv, y_adv):
+    def add_data_before(self, model, x, y, x_adv):
+        y_adv = model.predict(x_adv, verbose=0, batch_size=BATCH_SIZE)
+
         self.data['x_orig'] = [(x, np.argmax(y)) for x, y in zip(x[0:SAMPLES], y[0:SAMPLES])]
         self.data['x_adv'] = [(x, np.argmax(y)) for x, y in zip(x_adv[0:SAMPLES], y_adv[0:SAMPLES])]
 
@@ -89,9 +92,9 @@ class Report:
         accuracies = [run, model.evaluate(xtest, ytest, batch_size=BATCH_SIZE, verbose=0)[1]]
 
         for i in range(run + 1):
-            adv = get_manipulated_data(None, model, method, None, self.result_folder, "advtest", architecture, i)
+            adv = get_manipulated_data(None, model, method, None, None, self.result_folder, "advtest", architecture, i)
             _, acc = model.evaluate(adv, ytest, batch_size=BATCH_SIZE, verbose=0)
             accuracies.append(acc)
-
+        self.accuracies.append(accuracies[1:])
         self.accuracy_csv_writer.writerow(accuracies)
         self.csv_file.flush()
