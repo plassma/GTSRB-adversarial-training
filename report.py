@@ -9,7 +9,7 @@ from adversarials import get_manipulated_data
 from heatmap import grad_CAM_plus
 from preprocessing import signnames
 
-SAMPLES = 100
+SAMPLES = 25
 BATCH_SIZE = 512
 
 

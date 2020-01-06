@@ -226,6 +226,7 @@ Goodfellow et al. suggest using adversarial inputs for training to gain adversar
 The Fast Gradient Sign Method is very convenient for adversarial training, as it is computely cheap, and can be integrated in the loss function:
 
 \begin{equation}
+	\label{eq:adv_loss}
 	\tilde{J}(\theta, x, y_{true}) = \alpha J(\theta, x, y_{true}) + (1-\alpha)J(\theta, x + \epsilon sign(\nabla_xJ(\theta, x, y_{true})), y_{true})
 \end{equation}
 
@@ -253,6 +254,7 @@ How this translates to machine learning is not very clear, but still it can be s
 As the decision boundary of DNNs is encoded into the weights, the length of their bit-wise representation is constant, but it is still intuitive, that simpler, smoother decision-boundaries provide predictions that are more stable, especially when recalling the explanation for the existence of Adversarial Examples.
 
 \subsubsection{Grad-Cam-plus-plus}
+\label{section:grad_cam}
 
 \chapter{Related Work}
 
@@ -353,11 +355,66 @@ Name                                    & Version   \\
 
 \chapter{Experiment - Iterative Adversarial Training}
 %todo: mention targeted did not make a difference?
+In this chapter the first experiment and its results will be described and discussed in detail.
+
+\section{Description}
+
+In this experiment adversary training is performed iteratively, each iteration consisting of some evaluation steps and a run of adversary training.
+Two modes of adversary training are distinguished: in one mode Adversary Inputs are generated before training, while in the other mode the loss function is modified (see Equation \ref{eq:adv_loss}).
+In each iteration Adversary Inputs are generated from the validation set using FGSM with $\epsilon = 0.05$.
+The model is then trained, and its accuracy is evaluated not only against the validation- and the current Adversary Input set, but also against all preceding Adversary Input sets.
+Additionally, heatmaps (see \ref{section:grad_cam}) that expose what areas of an input were most important for the model's decision are created for some inputs from the validation set and the current Adversary input set before and after the Adversary Training.
+
+\section{Results}
+
+\subsection{lenet-5}
+
+\begin{figure}[h]
+  \begin{subfigure}[b]{0.5\columnwidth}
+		\centering
+    \includegraphics[width=\textwidth]{Results/iterative_adversarial_training/lenet-5/adv_train_data}
+    \subcaption{Accuracies with pregenerated Adversarial Inputs}
+    \label{fig:exp:iat:lenet-5:data}
+  \end{subfigure}
+  \begin{subfigure}[b]{0.5\columnwidth}
+		\centering
+    \includegraphics[width=\textwidth]{Results/iterative_adversarial_training/lenet-5/adv_loss_function}
+    \subcaption{Accuracies with modified loss function}
+    \label{fig:exp:iat:lenet-5:loss}
+  \end{subfigure}
+  \caption{Accuracies of lenet-5 in iterative Adversarial Training}
+  \label{fig:intro} % \label has to be placed AFTER \caption (or \subcaption) to produce correct cross-references.
+\end{figure}
+
+\subsection{alexnet}
+
+\begin{figure}[h]
+  \begin{subfigure}[b]{0.5\columnwidth}
+		\centering
+    \includegraphics[width=\textwidth]{Results/iterative_adversarial_training/alex/adv_train_data}
+    \subcaption{Accuracies with pregenerated Adversarial Inputs}
+    \label{fig:exp:iat:alex:data}
+  \end{subfigure}
+  \begin{subfigure}[b]{0.5\columnwidth}
+		\centering
+    \includegraphics[width=\textwidth]{Results/iterative_adversarial_training/alex/adv_loss_function}
+    \subcaption{Accuracies with modified loss function}
+    \label{fig:exp:iat:alex:loss}
+  \end{subfigure}
+  \caption{Accuracies of alexnet in iterative Adversarial Training}
+  \label{fig:intro} % \label has to be placed AFTER \caption (or \subcaption) to produce correct cross-references.
+\end{figure}
+
+\section{Discussion}
+
+
 
 \chapter{Experiment - Confusion Matrix}
 
 In this chapter the second experiment and its results will be described and discussed in detail.
-This experiment takes models that were trained implementing different defense strategies: none, Adversarial Training using FGSM, Input Gradient Regularization and a combination of the latter two techniques.
+
+\section{Description}
+This experiment uses models trained with different defense strategies: none, Adversarial Training using FGSM, Input Gradient Regularization and a combination of the latter two techniques.
 These trained models will be attacked using the targeted Basic Iterative Method, in one attempt targets will be very similar to the original label, in the other they will be very distinctive.
 
 
@@ -390,13 +447,13 @@ The most important attack, defense strategy and model parameters are presented i
 
 
 \begin{figure}[h]
-  \begin{subfigure}[b]{0.75\columnwidth}
+  \begin{subfigure}[b]{0.5\columnwidth}
 		\centering
     \includegraphics[width=\textwidth]{Results/confusion_matrix/lenet-5/similar}
     \subcaption{Targeted BIM for similar Images}
     \label{fig:exp:cm:lenet-5:similar}
   \end{subfigure}
-  \begin{subfigure}[b]{0.75\columnwidth}
+  \begin{subfigure}[b]{0.5\columnwidth}
 		\centering
     \includegraphics[width=\textwidth]{Results/confusion_matrix/lenet-5/different}
     \subcaption{Targeted BIM for different Images}
@@ -405,6 +462,7 @@ The most important attack, defense strategy and model parameters are presented i
   \caption{Targeted Basic Iterative Method, $\epsilon = 0.03$, 15 iterations}
   \label{fig:exp:cm:lenet-5}
 \end{figure}
+\clearpage
 
 \subsection{lenet-5 with Input Gradient Regularization}
 
@@ -430,13 +488,13 @@ The most important attack, defense strategy and model parameters are presented i
 
 
 \begin{figure}[h]
-  \begin{subfigure}[b]{0.75\columnwidth}
+  \begin{subfigure}[b]{0.5\columnwidth}
 		\centering
     \includegraphics[width=\textwidth]{Results/confusion_matrix/lenet-5_gradreg/similar}
     \subcaption{Targeted BIM for similar Images}
     \label{fig:exp:cm:lenet-5_gradreg:similar}
   \end{subfigure}
-  \begin{subfigure}[b]{0.75\columnwidth}
+  \begin{subfigure}[b]{0.5\columnwidth}
 		\centering
     \includegraphics[width=\textwidth]{Results/confusion_matrix/lenet-5_gradreg/different}
     \subcaption{Targeted BIM for different Images}
@@ -445,6 +503,7 @@ The most important attack, defense strategy and model parameters are presented i
   \caption{Targeted Basic Iterative Method, $\epsilon = 0.03$, 15 iterations}
   \label{fig:exp:cm:lenet-5_gradreg}
 \end{figure}
+\clearpage
 
 \subsection{lenet-5 with Adversarial Training}
 
@@ -470,13 +529,13 @@ The most important attack, defense strategy and model parameters are presented i
 
 
 \begin{figure}[h]
-  \begin{subfigure}[b]{0.75\columnwidth}
+  \begin{subfigure}[b]{0.5\columnwidth}
 		\centering
     \includegraphics[width=\textwidth]{Results/confusion_matrix/lenet-5_adv/similar}
     \subcaption{Targeted BIM for similar Images}
     \label{fig:exp:cm:lenet-5_adv:similar}
   \end{subfigure}
-  \begin{subfigure}[b]{0.75\columnwidth}
+  \begin{subfigure}[b]{0.5\columnwidth}
 		\centering
     \includegraphics[width=\textwidth]{Results/confusion_matrix/lenet-5_adv/different}
     \subcaption{Targeted BIM for different Images}
@@ -485,6 +544,7 @@ The most important attack, defense strategy and model parameters are presented i
   \caption{Targeted Basic Iterative Method, $\epsilon = 0.03$, 15 iterations}
   \label{fig:exp:cm:lenet-5_adv}
 \end{figure}
+\clearpage
 
 \subsection{lenet-5 with Adversarial Training and Input Gradient Regularization}
 
@@ -510,13 +570,13 @@ The most important attack, defense strategy and model parameters are presented i
 
 
 \begin{figure}[h]
-  \begin{subfigure}[b]{0.75\columnwidth}
+  \begin{subfigure}[b]{0.5\columnwidth}
 		\centering
     \includegraphics[width=\textwidth]{Results/confusion_matrix/lenet-5_gradreg_adv/similar}
     \subcaption{Targeted BIM for similar Images}
     \label{fig:exp:cm:lenet-5_gradreg_adv:similar}
   \end{subfigure}
-  \begin{subfigure}[b]{0.75\columnwidth}
+  \begin{subfigure}[b]{0.5\columnwidth}
 		\centering
     \includegraphics[width=\textwidth]{Results/confusion_matrix/lenet-5_gradreg_adv/different}
     \subcaption{Targeted BIM for different Images}
@@ -525,6 +585,7 @@ The most important attack, defense strategy and model parameters are presented i
   \caption{Targeted Basic Iterative Method, $\epsilon = 0.03$, 15 iterations}
   \label{fig:exp:cm:lenet-5_gradreg_adv}
 \end{figure}
+\clearpage
 
 
 
@@ -553,13 +614,13 @@ The most important attack, defense strategy and model parameters are presented i
 
 
 \begin{figure}[h]
-  \begin{subfigure}[b]{0.75\columnwidth}
+  \begin{subfigure}[b]{0.5\columnwidth}
 		\centering
     \includegraphics[width=\textwidth]{Results/confusion_matrix/alex/similar}%eps=0.01, iter=15
     \subcaption{Targeted BIM for similar Images}
     \label{fig:exp:cm:alex:similar}
   \end{subfigure}
-  \begin{subfigure}[b]{0.75\columnwidth}
+  \begin{subfigure}[b]{0.5\columnwidth}
 		\centering
     \includegraphics[width=\textwidth]{Results/confusion_matrix/alex/different}
     \subcaption{Targeted BIM for different Images}
@@ -568,6 +629,7 @@ The most important attack, defense strategy and model parameters are presented i
   \caption{Targeted Basic Iterative Method, $\epsilon = 0.01$, 15 iterations}
   \label{fig:intro} % \label has to be placed AFTER \caption (or \subcaption) to produce correct cross-references.
 \end{figure}
+\clearpage
 
 \subsection{Alexnet with Input Gradient Regularization}
 
@@ -593,13 +655,13 @@ The most important attack, defense strategy and model parameters are presented i
 
 
 \begin{figure}[h]
-  \begin{subfigure}[b]{0.75\columnwidth}
+  \begin{subfigure}[b]{0.5\columnwidth}
 		\centering
     \includegraphics[width=\textwidth]{Results/confusion_matrix/alex_gradreg/similar}%eps=0.01, iter=15
     \subcaption{Targeted BIM for similar Images}
     \label{fig:exp:cm:alex_gradreg:similar}
   \end{subfigure}
-  \begin{subfigure}[b]{0.75\columnwidth}
+  \begin{subfigure}[b]{0.5\columnwidth}
 		\centering
     \includegraphics[width=\textwidth]{Results/confusion_matrix/alex_gradreg/different}
     \subcaption{Targeted BIM for different Images}
@@ -608,6 +670,7 @@ The most important attack, defense strategy and model parameters are presented i
   \caption{Targeted Basic Iterative Method, $\epsilon = 0.01$, 15 iterations}
   \label{fig:intro} % \label has to be placed AFTER \caption (or \subcaption) to produce correct cross-references.
 \end{figure}
+\clearpage
 
 \subsection{Alexnet with Adversarial Training}
 \begin{table}[h]
@@ -632,13 +695,13 @@ The most important attack, defense strategy and model parameters are presented i
 
 
 \begin{figure}[h]
-  \begin{subfigure}[b]{0.75\columnwidth}
+  \begin{subfigure}[b]{0.5\columnwidth}
 		\centering
     \includegraphics[width=\textwidth]{Results/confusion_matrix/alex_adv/similar}
     \subcaption{Targeted BIM for similar Images}
     \label{fig:exp:cm:alex_adv:similar}
   \end{subfigure}
-  \begin{subfigure}[b]{0.75\columnwidth}
+  \begin{subfigure}[b]{0.5\columnwidth}
 		\centering
     \includegraphics[width=\textwidth]{Results/confusion_matrix/alex_adv/different}
     \subcaption{Targeted BIM for different Images}
@@ -647,7 +710,7 @@ The most important attack, defense strategy and model parameters are presented i
   \caption{Targeted Basic Iterative Method, $\epsilon = 0.01$, 15 iterations}
   \label{fig:intro} % \label has to be placed AFTER \caption (or \subcaption) to produce correct cross-references.
 \end{figure}
-
+\clearpage
 
 \subsection{Alexnet with Adversarial Training and Input Gradient Regularization}
 
@@ -671,15 +734,14 @@ The most important attack, defense strategy and model parameters are presented i
   \end{tabular}
 \end{table}
 
-
 \begin{figure}[h]
-  \begin{subfigure}[b]{0.75\columnwidth}
+  \begin{subfigure}[b]{0.5\columnwidth}
 		\centering
     \includegraphics[width=\textwidth]{Results/confusion_matrix/alex_gradreg_adv/similar}%eps=0.01, iter=15
     \subcaption{Targeted BIM for similar Images}
     \label{fig:exp:cm:alex_gradreg_adv:similar}
   \end{subfigure}
-  \begin{subfigure}[b]{0.75\columnwidth}
+  \begin{subfigure}[b]{0.5\columnwidth}
 		\centering
     \includegraphics[width=\textwidth]{Results/confusion_matrix/alex_gradreg_adv/different}
     \subcaption{Targeted BIM for different Images}
@@ -688,6 +750,7 @@ The most important attack, defense strategy and model parameters are presented i
   \caption{Targeted Basic Iterative Method, $\epsilon = 0.01$, 15 iterations}
   \label{fig:intro} % \label has to be placed AFTER \caption (or \subcaption) to produce correct cross-references.
 \end{figure}
+\clearpage
 
 
 
@@ -715,13 +778,13 @@ The most important attack, defense strategy and model parameters are presented i
 
 
 \begin{figure}[h]
-  \begin{subfigure}[b]{0.75\columnwidth}
+  \begin{subfigure}[b]{0.5\columnwidth}
 		\centering
     \includegraphics[width=\textwidth]{Results/confusion_matrix/vgg19/similar}
     \subcaption{Targeted BIM for similar Images}
     \label{fig:exp:cm:vgg19:similar}
   \end{subfigure}
-  \begin{subfigure}[b]{0.75\columnwidth}
+  \begin{subfigure}[b]{0.5\columnwidth}
 		\centering
     \includegraphics[width=\textwidth]{Results/confusion_matrix/vgg19/different}
     \subcaption{Targeted BIM for different Images}
@@ -730,6 +793,7 @@ The most important attack, defense strategy and model parameters are presented i
   \caption{Targeted Basic Iterative Method, $\epsilon = 0.03$, 15 iterations}
   \label{fig:exp:cm:vgg19}
 \end{figure}
+\clearpage
 
 
 
@@ -757,13 +821,13 @@ The most important attack, defense strategy and model parameters are presented i
 
 
 \begin{figure}[h]
-  \begin{subfigure}[b]{0.75\columnwidth}
+  \begin{subfigure}[b]{0.5\columnwidth}
 		\centering
     \includegraphics[width=\textwidth]{Results/confusion_matrix/vgg19_gradreg/similar}
     \subcaption{Targeted BIM for similar Images}
     \label{fig:exp:cm:vgg19_gradreg:similar}
   \end{subfigure}
-  \begin{subfigure}[b]{0.75\columnwidth}
+  \begin{subfigure}[b]{0.5\columnwidth}
 		\centering
     \includegraphics[width=\textwidth]{Results/confusion_matrix/vgg19_gradreg/different}
     \subcaption{Targeted BIM for different Images}
@@ -772,6 +836,7 @@ The most important attack, defense strategy and model parameters are presented i
   \caption{Targeted Basic Iterative Method, $\epsilon = 0.03$, 15 iterations}
   \label{fig:exp:cm:vgg19_gradreg}
 \end{figure}
+\clearpage
 
 \subsection{vgg19 with Adversarial Training}
 
@@ -797,13 +862,13 @@ The most important attack, defense strategy and model parameters are presented i
 
 
 \begin{figure}[h]
-  \begin{subfigure}[b]{0.75\columnwidth}
+  \begin{subfigure}[b]{0.5\columnwidth}
 		\centering
     \includegraphics[width=\textwidth]{Results/confusion_matrix/vgg19_adv/similar}
     \subcaption{Targeted BIM for similar Images}
     \label{fig:exp:cm:vgg19_adv:similar}
   \end{subfigure}
-  \begin{subfigure}[b]{0.75\columnwidth}
+  \begin{subfigure}[b]{0.5\columnwidth}
 		\centering
     \includegraphics[width=\textwidth]{Results/confusion_matrix/vgg19_adv/different}
     \subcaption{Targeted BIM for different Images}
@@ -812,6 +877,7 @@ The most important attack, defense strategy and model parameters are presented i
   \caption{Targeted Basic Iterative Method, $\epsilon = 0.03$, 15 iterations}
   \label{fig:exp:cm:vgg19_adv}
 \end{figure}
+\clearpage
 
 \subsection{vgg19 with Input Gradient Regularization and Adversarial Training}
 
@@ -837,13 +903,13 @@ The most important attack, defense strategy and model parameters are presented i
 
 
 \begin{figure}[h]
-  \begin{subfigure}[b]{0.75\columnwidth}
+  \begin{subfigure}[b]{0.5\columnwidth}
 		\centering
     \includegraphics[width=\textwidth]{Results/confusion_matrix/vgg19_gradreg_adv/similar}
     \subcaption{Targeted BIM for similar Images}
     \label{fig:exp:cm:vgg19_gradreg_adv:similar}
   \end{subfigure}
-  \begin{subfigure}[b]{0.75\columnwidth}
+  \begin{subfigure}[b]{0.5\columnwidth}
 		\centering
     \includegraphics[width=\textwidth]{Results/confusion_matrix/vgg19_gradreg_adv/different}
     \subcaption{Targeted BIM for different Images}
@@ -852,6 +918,7 @@ The most important attack, defense strategy and model parameters are presented i
   \caption{Targeted Basic Iterative Method, $\epsilon = 0.03$, 15 iterations}
   \label{fig:exp:cm:vgg19_gradreg_adv}
 \end{figure}
+\clearpage
 
 \subsection{ResNet50 with no defenses implemented}
 
@@ -877,13 +944,13 @@ The most important attack, defense strategy and model parameters are presented i
 
 
 \begin{figure}[h]
-  \begin{subfigure}[b]{0.75\columnwidth}
+  \begin{subfigure}[b]{0.5\columnwidth}
 		\centering
     \includegraphics[width=\textwidth]{Results/confusion_matrix/resnet50/similar}
     \subcaption{Targeted BIM for similar Images}
     \label{fig:exp:cm:resnet50:similar}
   \end{subfigure}
-  \begin{subfigure}[b]{0.75\columnwidth}
+  \begin{subfigure}[b]{0.5\columnwidth}
 		\centering
     \includegraphics[width=\textwidth]{Results/confusion_matrix/resnet50/different}
     \subcaption{Targeted BIM for different Images}
@@ -892,6 +959,7 @@ The most important attack, defense strategy and model parameters are presented i
   \caption{Targeted Basic Iterative Method, $\epsilon = 0.03$, 15 iterations}
   \label{fig:exp:cm:resnet50}
 \end{figure}
+\clearpage
 
 \subsection{ResNet50 with Input Gradient Regularization}
 
@@ -917,13 +985,13 @@ The most important attack, defense strategy and model parameters are presented i
 
 
 \begin{figure}[h]
-  \begin{subfigure}[b]{0.75\columnwidth}
+  \begin{subfigure}[b]{0.5\columnwidth}
 		\centering
     \includegraphics[width=\textwidth]{Results/confusion_matrix/resnet50_gradreg/similar}
     \subcaption{Targeted BIM for similar Images}
     \label{fig:exp:cm:resnet50_gradreg:similar}
   \end{subfigure}
-  \begin{subfigure}[b]{0.75\columnwidth}
+  \begin{subfigure}[b]{0.5\columnwidth}
 		\centering
     \includegraphics[width=\textwidth]{Results/confusion_matrix/resnet50_gradreg/different}
     \subcaption{Targeted BIM for different Images}
@@ -932,6 +1000,7 @@ The most important attack, defense strategy and model parameters are presented i
   \caption{Targeted Basic Iterative Method, $\epsilon = 0.03$, 15 iterations}
   \label{fig:exp:cm:resnet50_gradreg}
 \end{figure}
+\clearpage
 
 
 \subsection{ResNet50 with Adversarial Training}
@@ -958,13 +1027,13 @@ The most important attack, defense strategy and model parameters are presented i
 
 
 \begin{figure}[h]
-  \begin{subfigure}[b]{0.75\columnwidth}
+  \begin{subfigure}[b]{0.5\columnwidth}
 		\centering
     \includegraphics[width=\textwidth]{Results/confusion_matrix/resnet50_adv/similar}
     \subcaption{Targeted BIM for similar Images}
     \label{fig:exp:cm:resnet50_gradreg_adv:similar}
   \end{subfigure}
-  \begin{subfigure}[b]{0.75\columnwidth}
+  \begin{subfigure}[b]{0.5\columnwidth}
 		\centering
     \includegraphics[width=\textwidth]{Results/confusion_matrix/resnet50_adv/different}
     \subcaption{Targeted BIM for different Images}
@@ -973,48 +1042,8 @@ The most important attack, defense strategy and model parameters are presented i
   \caption{Targeted Basic Iterative Method, $\epsilon = 0.03$, 15 iterations}
   \label{fig:exp:cm:resnet50_adv}
 \end{figure}
-%%%begin: template
-%\subsection{xxx}
-%
-%\begin{table}[h]
-  %\centering
-  %\begin{tabular}{ll}
-    %\toprule
-			%Parameter			& Value   \\
-    %\midrule
-			%$\lambda$								& xxx				\\
-			%$\alpha$								& xxx				\\
-			%$\epsilon$ FGSM					& xxx		\\
-			%
-			%Validation Accuracy			& xxx		\\ 
-			%Adv Accuracy - FGSM			& xxx		\\
-			%Adv Accuracy - SPA			& 0.898		\\
-			%
-			%Avg Input Gradient			& xxx	\\
-			%Max Input Gradient			& xxx\\
-    %\bottomrule
-  %\end{tabular}
-%\end{table}
-%
-%
-%\begin{figure}[h]
-  %\begin{subfigure}[b]{0.75\columnwidth}
-		%\centering
-    %\includegraphics[width=\textwidth]{Results/confusion_matrix/xxx/similar}
-    %\subcaption{Targeted BIM for similar Images}
-    %\label{fig:exp:cm:xxx:similar}
-  %\end{subfigure}
-  %\begin{subfigure}[b]{0.75\columnwidth}
-		%\centering
-    %\includegraphics[width=\textwidth]{Results/confusion_matrix/xxx/different}
-    %\subcaption{Targeted BIM for different Images}
-    %\label{fig:exp:cm:xxx:different}
-  %\end{subfigure}
-  %\caption{Targeted Basic Iterative Method, $\epsilon = 0.03$, 15 iterations}
-  %\label{fig:exp:cm:xxx}
-%\end{figure}
 
-% end
+\section{Discussion}
 
 \backmatter
 

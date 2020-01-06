@@ -67,29 +67,40 @@ def transform_to_batch_acc(accuracies):
     for i in range(l):
         batch = []
         for j in range(l):
-            if j >= len(accuracies[i]):
+            if i >= len(accuracies[j]):
                 batch.append(float("nan"))
             else:
-                batch.append(accuracies[i][j])
+                batch.append(accuracies[j][i])
         batches.append(batch)
 
     return np.array(batches)
 
 
+def plot_adversary_accuracies(data, use_adversary_loss, architecture):
+    plt.title("Accuracies in iterative Adversarial Training for " + architecture + ",\nusing " +
+              ("adversary loss function" if use_adversary_loss else "pregenerated adversary inputs"))
+    plt.xticks(range(len(data)))
+
+    plt.ylabel("Accuracy")
+    plt.xlabel("Iteration of Adversary Training")
+
+    plt.plot(data[0], label="Test Set")
+
+    for i in range(1, len(data)):
+        plt.plot(data[i], 'o', label="Adversary Set " + str(i), markevery=[i - 1], ms=8, ls='-')
+    plt.legend(bbox_to_anchor=(1, 1), loc='upper left')
+    plt.show()
+
+
 def perform_iterative_adversarial_training(architecture, data_tuple):
-    accuracies_adv_data = iterative_adversarial_training(architecture, data_tuple, False, 3)
-    accuracies_adv_loss = iterative_adversarial_training(architecture, data_tuple, True, 3)
+    accuracies_adv_data = iterative_adversarial_training(architecture, data_tuple, False)
+    accuracies_adv_loss = iterative_adversarial_training(architecture, data_tuple, True)
 
     accuracies_adv_data_batches = transform_to_batch_acc(accuracies_adv_data)
     accuracies_adv_loss_batches = transform_to_batch_acc(accuracies_adv_loss)
 
-    for i in range(len(accuracies_adv_loss)):
-        plt.plot(accuracies_adv_data_batches[i])
-    plt.plot()
-
-    for i in range(len(accuracies_adv_loss)):
-        plt.plot(accuracies_adv_loss_batches[i])
-    plt.plot()
+    plot_adversary_accuracies(accuracies_adv_data_batches, False, architecture)
+    plot_adversary_accuracies(accuracies_adv_loss_batches, True, architecture)
 
 
 def iterative_adversarial_training(architecture, data_tuple, use_adv_loss=True, iterations=10, targeted=False):

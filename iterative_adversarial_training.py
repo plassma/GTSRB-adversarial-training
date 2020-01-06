@@ -1,9 +1,9 @@
 import warnings
-
 from experiments import perform_iterative_adversarial_training
 from networks import prepare_data
 
 warnings.filterwarnings("ignore")
+
 
 data_tuple = prepare_data("iterative_adversarial_training")
 

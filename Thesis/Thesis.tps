@@ -17,8 +17,8 @@ Class=LaTeXView
 Document=Thesis.tex
 
 [Frame0_View0,0]
-TopLine=405
-Cursor=25585
+TopLine=367
+Cursor=23970
 
 [Frame1]
 Flags=0
