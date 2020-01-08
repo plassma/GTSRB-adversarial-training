@@ -11,14 +11,14 @@ MaxPos.x=-1
 MaxPos.y=-1
 NormalPos.left=4
 NormalPos.top=44
-NormalPos.right=3476
-NormalPos.bottom=1442
+NormalPos.right=3482
+NormalPos.bottom=1459
 Class=LaTeXView
 Document=Thesis.tex
 
 [Frame0_View0,0]
-TopLine=367
-Cursor=23970
+TopLine=388
+Cursor=25624
 
 [Frame1]
 Flags=0
@@ -29,8 +29,8 @@ MaxPos.x=-1
 MaxPos.y=-1
 NormalPos.left=4
 NormalPos.top=44
-NormalPos.right=3476
-NormalPos.bottom=1442
+NormalPos.right=3482
+NormalPos.bottom=1459
 Class=BibTeXView
 Document=thesis.bib
 

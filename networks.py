@@ -4,7 +4,6 @@ import sys
 import matplotlib.pyplot as plt
 import numpy as np
 import tensorflow as tf
-from tensorflow.keras.callbacks import CSVLogger
 from tensorflow.keras.preprocessing.image import array_to_img
 
 from preprocessing import get_dataset, signnames
@@ -16,9 +15,10 @@ TRAIN_PATH = "res\\train\\Final_Training\\Images\\"
 TEST_PATH = "res\\test\\Final_Test\\Images\\"
 TEST_LABELS_PATH = "res\\test\\Final_Test\\GT-final_test.csv"
 IMG_SIZE = 64
-EPOCHS_TRAINING = 10
+EPOCHS_TRAINING_STANDARD = 10
 LEARNING_RATE = 0.001
 BATCH_SIZE_TRAINING = 32
+
 
 # MIT-license: https://github.com/MaximilianIdahl/gtsrb-models-keras
 
@@ -57,8 +57,7 @@ def prepare_data(experiment):
     return xtrain, ytrain, xtest, ytest, result_folder
 
 
-def prepare_model(architecture, xtrain, ytrain, xtest, ytest, result_folder, lam, adversarial):
-
+def prepare_model_cm(architecture, xtrain, ytrain, xtest, ytest, result_folder, lam, adversarial):
     model_input_shape = xtrain[0].shape
     num_classes = ytrain[0].shape[0]
 
@@ -77,6 +76,28 @@ def prepare_model(architecture, xtrain, ytrain, xtest, ytest, result_folder, lam
     train_model(model, xtrain, ytrain, xtest, ytest, architecture, lam, adversarial, 0, result_folder)
 
     return model
+
+
+def prepare_model_iat(architecture, xtrain, ytrain, xtest, ytest, adversarial):
+    model_input_shape = xtrain[0].shape
+    num_classes = ytrain[0].shape[0]
+
+    model = None
+
+    # train model
+    if architecture == 'vgg19':
+        model = build_vgg19(num_classes, model_input_shape)
+    elif architecture == 'lenet-5':
+        model = build_lenet5(num_classes, model_input_shape)
+    elif architecture == 'alex':
+        model = build_alexnet(num_classes, model_input_shape)
+    elif architecture == 'resnet50':
+        model = build_resnet50(num_classes, model_input_shape)
+
+    train_model_partially(model, xtrain, ytrain, xtest, ytest, adversarial, 0)
+
+    return model
+
 
 def build_resnet50(num_classes, img_size):
     from tensorflow.keras.applications import ResNet50
@@ -156,13 +177,12 @@ def build_alexnet(num_classes, img_size):
 
 def lr_schedule(epoch):
     # decreasing learning rate depending on epoch
-    return 0.001 * (0.1 ** int(epoch / EPOCHS_TRAINING))
+    return 0.001 * (0.1 ** int(epoch / EPOCHS_TRAINING_STANDARD))
 
 
 def get_regularization_loss(model, lam):
     def penalized_loss(target, output):
-
-        categorical_crossentropy = tf.keras.losses.categorical_crossentropy(target, output)#tf.reduce_sum(temp, -1)  # shape: (?,)
+        categorical_crossentropy = tf.keras.losses.categorical_crossentropy(target, output)
 
         if lam:
             grad = tf.gradients(categorical_crossentropy, model.input)[0]
@@ -202,7 +222,6 @@ def train_model(model, xtrain, ytrain, xtest, ytest, architecture, lam, adversar
     modelpath = os.path.join(result_folder, modelpath)
 
     checkpoint = ModelCheckpoint(modelpath, save_best_only=True)
-    csv_logger = CSVLogger(os.path.join(result_folder, "training.log"), separator=",", append=True)
 
     if run == 0:
         loss = get_regularization_loss(model, lam)
@@ -220,9 +239,48 @@ def train_model(model, xtrain, ytrain, xtest, ytest, architecture, lam, adversar
         model.fit(xtrain, ytrain,
                   batch_size=BATCH_SIZE_TRAINING,
                   validation_data=(xtest, ytest),
-                  epochs=EPOCHS_TRAINING,
-                  callbacks=[LearningRateScheduler(lr_schedule), csv_logger, checkpoint],
+                  epochs=EPOCHS_TRAINING_STANDARD,
+                  callbacks=[LearningRateScheduler(lr_schedule), checkpoint],
                   verbose=1)
+
+
+def train_model_partially(model, xtrain, ytrain, xtest, ytest, adversarial_loss, run):
+    """
+    Trains a CNN for a given dataset
+    :param model: initialized model
+    :param xtrain: training images
+    :param ytrain: labels for training images numbered from 0 to n
+    :param xtest: test images
+    :param ytest: labels for test images numbered from 0 to n
+    :param architecture the architecture of the model to train
+    :param lam lambda for input gradient regularization
+    :param adversarial_loss whether to use FGSM adv loss
+    :param run number of this training run
+    :param result_folder: Save trained model to this directory
+    :return: None
+    """
+    from tensorflow.keras.optimizers import SGD
+    from adversarials import get_adversarial_loss
+
+    epochs_per_run = 2
+
+    if run == 0:
+        loss = get_regularization_loss(model, 0)
+
+        if adversarial_loss:
+            loss = get_adversarial_loss(model, loss)
+
+        sgd = SGD(lr=LEARNING_RATE, momentum=0.9, nesterov=True)
+
+        model.compile(optimizer=sgd, metrics=['accuracy'], loss=loss)
+    else:
+        tf.keras.backend.set_value(model.optimizer.lr, lr_schedule(run * epochs_per_run))
+
+    model.fit(xtrain, ytrain,
+              batch_size=BATCH_SIZE_TRAINING,
+              validation_data=(xtest, ytest),
+              epochs=epochs_per_run,
+              verbose=1)
 
 
 def measure_input_gradient(model, x, y):
