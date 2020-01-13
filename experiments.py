@@ -105,6 +105,9 @@ def perform_iterative_adversarial_training(architecture, data_tuple):
 def iterative_adversarial_training(architecture, data_tuple, use_adv_loss=True, iterations=10, targeted=False):
     xtrain, ytrain, xtest, ytest, result_folder = data_tuple
 
+    if use_adv_loss:
+        result_folder += "_adv"
+
     model = prepare_model_iat(architecture, xtrain, ytrain, xtest, ytest, use_adv_loss)
 
     report = Report(result_folder, architecture)

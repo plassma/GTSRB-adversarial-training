@@ -76,11 +76,11 @@ class Report:
             self.show_tuple(self.data['x_orig'][i], 'original', '', axs[0, 0])
             self.show_tuple(self.data['x_adv'][i], 'adversarial', '', axs[1, 0])
 
-            self.show_tuple(self.data['x_orig_heat_before'][i], 'original', 'before adv-training', axs[0, 1])
-            self.show_tuple(self.data['x_adv_heat'][i], 'adversarial', 'before adv-training', axs[1, 1])
+            self.show_tuple(self.data['x_orig_heat_before'][i], 'original', 'before training', axs[0, 1])
+            self.show_tuple(self.data['x_adv_heat'][i], 'adversarial', 'before training', axs[1, 1])
 
-            self.show_tuple(self.data['x_orig_heat_after'][i], 'original', 'after adv-training', axs[0, 2])
-            self.show_tuple(self.data['x_adv_heat_after'][i], 'adversarial', 'after adv-training', axs[1, 2])
+            self.show_tuple(self.data['x_orig_heat_after'][i], 'original', 'after training', axs[0, 2])
+            self.show_tuple(self.data['x_adv_heat_after'][i], 'adversarial', 'after training', axs[1, 2])
 
             plt.savefig(os.path.join(result_folder, str(i) + ".png"))
             plt.close()
