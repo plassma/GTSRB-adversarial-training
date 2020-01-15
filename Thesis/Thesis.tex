@@ -149,6 +149,7 @@ Christian Szegedy et al. were the first to describe adversarial examples for (de
 They found, that adversarial examples generated for one model are also statistically hard to classify for networks with different hyperparameters, or even more surprising for networks trained on different data sets \cite{Szegedy2013}.
 
 \section{Adversarial Attacks}
+\label{section:adv_att}
 
 This section is about the algorithms for generating adversarial examples used in the experiments of this work.
 After a brief introduction and theoretical justification for the existence of Adversarial Examples, the Fast Gradient Sign Method, the Basic Iterative Method and the Single Pixel Attack will be explained.\\
@@ -358,6 +359,8 @@ In this chapter the first experiment and its results will be described and discu
 In this experiment adversary training is performed iteratively, each iteration consisting of some evaluation steps and a run of adversary training.
 Two modes of training are distinguished: in one mode no defenses are applied, while in the other the loss function is modified to weigh Adversarial Loss with $\alpha = 0.5$ (see Equation \ref{eq:adv_loss}).
 In each iteration Adversary Inputs are generated from the validation set using untargeted FGSM with $\epsilon = 0.05$.
+The Adversary Input sets do not get filtered, and contain actual Adversary Inputs as well as Inputs that still get classified correctly.
+The accuracies on those Adversary Sets are considered proportional to the Adversary Robustness of a classifier.
 The model is then trained for an epoch, and its accuracy is evaluated not only against the validation- and the current Adversary Input set, but also against all preceding Adversary Input sets, before the next iteration begins.
 Additionally, heatmaps (see \ref{section:grad_cam}) that expose what areas of an input were most important for the model's decision are created for some inputs from the validation set and the current Adversary input set before and after the Adversary Training.
 A shift of areas that were most important for an image's classification is expected towards features that appear like key features to a human.
@@ -380,7 +383,35 @@ A shift of areas that were most important for an image's classification is expec
     \label{fig:exp:iat:lenet-5:loss}
   \end{subfigure}
   \caption{Accuracies of lenet-5 in iterative Adversarial Training}
-  \label{fig:intro} % \label has to be placed AFTER \caption (or \subcaption) to produce correct cross-references.
+\end{figure}
+
+\begin{figure}[h]
+	\begin{subfigure}[b]{0.5\columnwidth}
+		\centering
+    \includegraphics[width=\textwidth]{Results/iterative_adversarial_training/heatmaps/normal_0}
+    \subcaption{Heatmap of undefended lenet-5 in \hspace{\textwidth} iteration 1}
+    \label{fig:exp:iat:lenet-5-heat:normal_0}
+  \end{subfigure}
+  \begin{subfigure}[b]{0.5\columnwidth}
+		\centering
+    \includegraphics[width=\textwidth]{Results/iterative_adversarial_training/heatmaps/normal_1}
+    \subcaption{Heatmap of undefended lenet-5 in \hspace{\textwidth} iteration 10}
+    \label{fig:exp:iat:lenet-5-heat:normal_1}
+  \end{subfigure}
+
+	\begin{subfigure}[b]{0.5\columnwidth}
+		\centering
+    \includegraphics[width=\textwidth]{Results/iterative_adversarial_training/heatmaps/adv_0}
+    \subcaption{Heatmap of adversarially trained lenet-5 in iteration 1}
+    \label{fig:exp:iat:lenet-5-heat:adv_0}
+  \end{subfigure}
+  \begin{subfigure}[b]{0.5\columnwidth}
+		\centering
+    \includegraphics[width=\textwidth]{Results/iterative_adversarial_training/heatmaps/adv_1}
+    \subcaption{Heatmap of adversarially trained lenet-5 in iteration 10}
+    \label{fig:exp:iat:lenet-5-heat:adv_0}
+  \end{subfigure}
+  \caption{Heatmaps for lenet-5 correctly classifying 'Vehicles over 3.5 metric tons prohibited'}
 \end{figure}
 
 \subsection{alexnet}
@@ -399,10 +430,43 @@ A shift of areas that were most important for an image's classification is expec
     \label{fig:exp:iat:alex:loss}
   \end{subfigure}
   \caption{Accuracies of alexnet in iterative Adversarial Training}
-  \label{fig:intro} % \label has to be placed AFTER \caption (or \subcaption) to produce correct cross-references.
 \end{figure}
 
+\subsection{vgg19}
+
+\begin{figure}[h]
+  \begin{subfigure}[b]{0.5\columnwidth}
+		\centering
+    \includegraphics[width=\textwidth]{Results/iterative_adversarial_training/vgg19/standard_loss}
+    \subcaption{Accuracies with undefended loss}
+    \label{fig:exp:iat:alex:data}
+  \end{subfigure}
+  \begin{subfigure}[b]{0.5\columnwidth}
+		\centering
+    \includegraphics[width=\textwidth]{Results/iterative_adversarial_training/vgg19/adv_loss}
+    \subcaption{Accuracies with Adversarial loss}
+    \label{fig:exp:iat:alex:loss}
+  \end{subfigure}
+  \caption{Accuracies of vgg19 in iterative Adversarial Training}
+\end{figure}
+
+\subsection{resnet-50}
+
+Unfortunately, the experiment could not be performed for the resnet-50, as the accuracy did not rise above 0.05.
+After correct behavior of the network in training during the first few batches, the loss starts to increase again.
+The reason for this probably lies in the high complexity of the adversarial loss function and memory issues during training.
+
 \section{Discussion}
+
+
+For every architecture, Adversarial Training clearly does increase the robustness for FGSM attacks, while maintaining or even improving the validation accuracy.
+The adversary accuracies are consistently increased for all Adversary Input sets generated during the experiment, which means that the classifiers actually learn to recognize
+Adversary Inputs, and not to 'hide' them from FGSM while still being vulnerable to them.
+It seems like more complex networks are more adversarially robust, although that cannot be concluded by comparing the performance of 3 architectures.\\
+
+No significant effects of adversarial training on heatmaps could be examined.
+This is plausible, when recalling the linear explanation for the existence of Adversarial Inputs \ref{section:adv_att}.
+The adversarial robustness is not a result of focusing on more stable features, but probably arises from eliminating some 'pockets' in the decision boundary.
 
 
 \chapter{Experiment - Confusion Matrix}
@@ -600,7 +664,7 @@ The most important attack, defense strategy and model parameters are presented i
 			$\alpha$								& 0				\\
 			$\epsilon$ FGSM					& 0.05		\\
 			
-			Validation Accuracy			& 0.961		\\ %todo
+			Validation Accuracy			& 0.961		\\
 			Adv Accuracy - FGSM			& 0.342		\\
 			%Adv Accuracy - SPA			& 0.898		\\
 			
@@ -625,7 +689,6 @@ The most important attack, defense strategy and model parameters are presented i
     \label{fig:exp:cm:alex:different}
   \end{subfigure}
   \caption{Targeted Basic Iterative Method, $\epsilon = 0.01$, 15 iterations}
-  \label{fig:intro} % \label has to be placed AFTER \caption (or \subcaption) to produce correct cross-references.
 \end{figure}
 \clearpage
 
@@ -666,7 +729,6 @@ The most important attack, defense strategy and model parameters are presented i
     \label{fig:exp:cm:alex_gradreg:different}
   \end{subfigure}
   \caption{Targeted Basic Iterative Method, $\epsilon = 0.01$, 15 iterations}
-  \label{fig:intro} % \label has to be placed AFTER \caption (or \subcaption) to produce correct cross-references.
 \end{figure}
 \clearpage
 
@@ -706,7 +768,6 @@ The most important attack, defense strategy and model parameters are presented i
     \label{fig:exp:cm:alex_adv:different}
   \end{subfigure}
   \caption{Targeted Basic Iterative Method, $\epsilon = 0.01$, 15 iterations}
-  \label{fig:intro} % \label has to be placed AFTER \caption (or \subcaption) to produce correct cross-references.
 \end{figure}
 \clearpage
 
@@ -735,7 +796,7 @@ The most important attack, defense strategy and model parameters are presented i
 \begin{figure}[h]
   \begin{subfigure}[b]{0.5\columnwidth}
 		\centering
-    \includegraphics[width=\textwidth]{Results/confusion_matrix/alex_gradreg_adv/similar}%eps=0.01, iter=15
+    \includegraphics[width=\textwidth]{Results/confusion_matrix/alex_gradreg_adv/similar}
     \subcaption{Targeted BIM for similar Images}
     \label{fig:exp:cm:alex_gradreg_adv:similar}
   \end{subfigure}
@@ -746,7 +807,6 @@ The most important attack, defense strategy and model parameters are presented i
     \label{fig:exp:cm:alex_gradreg_adv:different}
   \end{subfigure}
   \caption{Targeted Basic Iterative Method, $\epsilon = 0.01$, 15 iterations}
-  \label{fig:intro} % \label has to be placed AFTER \caption (or \subcaption) to produce correct cross-references.
 \end{figure}
 \clearpage
 

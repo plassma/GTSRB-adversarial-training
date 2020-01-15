@@ -36,19 +36,6 @@ class Report:
             result[i] = np.argmax(one_hot_arr[i])
         return result
 
-    def add_data_before(self, model, x, y, x_adv):
-        y_adv = model.predict(x_adv, verbose=0, batch_size=BATCH_SIZE)
-
-        self.data['x_orig'] = [(x, np.argmax(y)) for x, y in zip(x[0:SAMPLES], y[0:SAMPLES])]
-        self.data['x_adv'] = [(x, np.argmax(y)) for x, y in zip(x_adv[0:SAMPLES], y_adv[0:SAMPLES])]
-
-        self.data['x_orig_heat_before'] = grad_CAM_plus(model, x[:SAMPLES])
-        self.data['x_adv_heat'] = grad_CAM_plus(model, x_adv[:SAMPLES])
-
-    def add_data_after(self, model, x, x_adv):
-        self.data['x_orig_heat_after'] = grad_CAM_plus(model, x[:SAMPLES])
-        self.data['x_adv_heat_after'] = grad_CAM_plus(model, x_adv[:SAMPLES])
-
     @staticmethod
     def show_tuple(im_pred, xlabel, ylabel, ax):
         im, pred = im_pred
@@ -64,26 +51,18 @@ class Report:
         ax.set_xticks([])
         ax.set_yticks([])
 
-    def report(self):
+    def report(self, model, x):
 
         result_folder = os.path.join(self.result_folder, self.architecture, str(self.run))
 
         if not os.path.exists(result_folder):
             os.makedirs(result_folder)
 
-        for i in range(len(self.data['x_orig'])):
-            fig, axs = plt.subplots(nrows=2, ncols=3)
-            self.show_tuple(self.data['x_orig'][i], 'original', '', axs[0, 0])
-            self.show_tuple(self.data['x_adv'][i], 'adversarial', '', axs[1, 0])
-
-            self.show_tuple(self.data['x_orig_heat_before'][i], 'original', 'before training', axs[0, 1])
-            self.show_tuple(self.data['x_adv_heat'][i], 'adversarial', 'before training', axs[1, 1])
-
-            self.show_tuple(self.data['x_orig_heat_after'][i], 'original', 'after training', axs[0, 2])
-            self.show_tuple(self.data['x_adv_heat_after'][i], 'adversarial', 'after training', axs[1, 2])
-
-            plt.savefig(os.path.join(result_folder, str(i) + ".png"))
-            plt.close()
+        heatmaps = grad_CAM_plus(model, x[:SAMPLES])
+        plt.axis('off')
+        for i in range(len(heatmaps)):
+            plt.imsave(os.path.join(result_folder, str(i)), heatmaps[i][0])
+        plt.axis('on')
 
         self.run += 1
 

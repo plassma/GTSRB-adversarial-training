@@ -120,13 +120,9 @@ def iterative_adversarial_training(architecture, data_tuple, use_adv_loss=True, 
 
         report.evaluate_accuracies(model, xtest, ytest, architecture, "FGSM", run)
 
-        report.add_data_before(model, xtest, ytest, x_adv_test)
-
         train_model_partially(model, xtrain, ytrain, xtest, ytest, use_adv_loss, run + 1)
 
-        report.add_data_after(model, xtest, x_adv_test)
-
-        report.report()
+        report.report(model, xtrain)
 
     return report.accuracies
 
