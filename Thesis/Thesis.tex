@@ -486,12 +486,14 @@ Each column has the same attack target, while each row consists of the same orig
 A table containing accuracies and defense parameters for each combination of network architecture and defense strategy is given.
 $\alpha$ and $\epsilon$ FGSM stand for the weight of the adversarial loss and the maximal perturbation of Adversarial Inputs in the adversarial training loss function \ref{eq:adv_loss}, while $\lambda$ denotes the regularization-coefficient from \ref{eq:gradreg}.
 Additionally, the average and maximal input gradient among the validation-set is given.
+%todo: training params beschreiben
 
 
 \section{Results}
 
 The following sections contain the results of the experiment, each heading for a different combination of model and defense strategy.
-The most important attack, defense strategy and model parameters are presented in a table for each combination of model architecture and defense strategy.
+
+\clearpage
 
 \subsection{lenet-5 with no defenses implemented}
 
@@ -504,13 +506,14 @@ The most important attack, defense strategy and model parameters are presented i
 			$\lambda$								& 0				\\
 			$\alpha$								& 0				\\
 			$\epsilon$ FGSM					& 0.05		\\
+			Epochs training					& 20			\\
 			
-			Validation Accuracy			& 0.880		\\ 
-			Adv Accuracy - FGSM			& 0.179		\\
+			Validation Accuracy			& 0.892		\\ 
+			Adv Accuracy - FGSM			& 0.200		\\
 %			Adv Accuracy - SPA			& 0.898		\\
 			
-			Avg Input Gradient			& 19.134	\\
-			Max Input Gradient			& 2460.131\\
+			Avg Input Gradient			& 20.799	\\
+			Max Input Gradient			& 6521.212\\
     \bottomrule
   \end{tabular}
 \end{table}
@@ -545,13 +548,14 @@ The most important attack, defense strategy and model parameters are presented i
 			$\lambda$								& 0.4			\\
 			$\alpha$								& 0				\\
 			$\epsilon$ FGSM					& 0.05		\\
+			Epochs training					& 20			\\
 			
-			Validation Accuracy			& 0.786		\\ 
+			Validation Accuracy			& 0.760		\\ 
 			Adv Accuracy - FGSM			& 0.194		\\
 %			Adv Accuracy - SPA			& 0.898		\\
 			
-			Avg Input Gradient			& 11.814	\\
-			Max Input Gradient			& 542.744	\\
+			Avg Input Gradient			& 8.620		\\
+			Max Input Gradient			& 411.353	\\
     \bottomrule
   \end{tabular}
 \end{table}
@@ -586,13 +590,14 @@ The most important attack, defense strategy and model parameters are presented i
 			$\lambda$								& 0				\\
 			$\alpha$								& 0.5			\\
 			$\epsilon$ FGSM					& 0.05		\\
+			Epochs training					& 20			\\
 			
-			Validation Accuracy			& 0.778		\\ 
-			Adv Accuracy - FGSM			& 0.396		\\
+			Validation Accuracy			& 0.816		\\ 
+			Adv Accuracy - FGSM			& 0.405		\\
 			%Adv Accuracy - SPA			& 0.898		\\
 			
-			Avg Input Gradient			& 37.838	\\
-			Max Input Gradient			& 2701.587\\
+			Avg Input Gradient			& 22.584	\\
+			Max Input Gradient			& 2281.173\\
     \bottomrule
   \end{tabular}
 \end{table}
@@ -627,13 +632,14 @@ The most important attack, defense strategy and model parameters are presented i
 			$\lambda$								& 0.4			\\
 			$\alpha$								& 0.5			\\
 			$\epsilon$ FGSM					& 0.05		\\
+			Epochs training					& 20			\\
 			
-			Validation Accuracy			& 0.740		\\ 
+			Validation Accuracy			& 0.766		\\ 
 			Adv Accuracy - FGSM			& 0.400		\\
 			%Adv Accuracy - SPA			& 0.898		\\
 			
-			Avg Input Gradient			& 16.731	\\
-			Max Input Gradient			& 772.798	\\
+			Avg Input Gradient			& 13.832	\\
+			Max Input Gradient			& 521.101	\\
     \bottomrule
   \end{tabular}
 \end{table}
@@ -658,8 +664,6 @@ The most important attack, defense strategy and model parameters are presented i
 \clearpage
 
 
-
-
 \subsection{Alexnet with no defenses implemented}
 
 \begin{table}[h]
@@ -671,6 +675,7 @@ The most important attack, defense strategy and model parameters are presented i
 			$\lambda$								& 0				\\
 			$\alpha$								& 0				\\
 			$\epsilon$ FGSM					& 0.05		\\
+			Epochs training					& 10			\\
 			
 			Validation Accuracy			& 0.961		\\
 			Adv Accuracy - FGSM			& 0.342		\\
@@ -711,6 +716,7 @@ The most important attack, defense strategy and model parameters are presented i
 			$\lambda$								& 0.15		\\
 			$\alpha$								& 0				\\
 			$\epsilon$ FGSM					& 0.05		\\
+			Epochs training					& 10			\\
 			
 			Validation Accuracy			& 0.949		\\
 			Adv Accuracy - FGSM			& 0.375		\\
@@ -750,6 +756,7 @@ The most important attack, defense strategy and model parameters are presented i
 			$\lambda$								& 0				\\
 			$\alpha$								& 0.5			\\
 			$\epsilon$ FGSM					& 0.05		\\
+			Epochs training					& 10			\\
 			
 			Validation Accuracy			& 0.947		\\
 			Adv Accuracy - FGSM			& 0.633 	\\
@@ -790,10 +797,11 @@ The most important attack, defense strategy and model parameters are presented i
 			$\lambda$								& 0.15		\\
 			$\alpha$								& 0.5			\\
 			$\epsilon$ FGSM					& 0.05		\\
+			Epochs training					& 10			\\
 			
 			Validation Accuracy			& 0.904		\\
 			Adv Accuracy - FGSM			& 0.604		\\
-			Adv Accuracy - SPA			& 0.883		\\
+			%Adv Accuracy - SPA			& 0.883		\\
 			
 			Avg Input Gradient			& 22.241	\\
 			Max Input Gradient			& 1671.804\\
@@ -831,6 +839,7 @@ The most important attack, defense strategy and model parameters are presented i
 			$\lambda$								& 0				\\
 			$\alpha$								& 0				\\
 			$\epsilon$ FGSM					& 0.05		\\
+			Epochs training					& 10			\\
 			
 			Validation Accuracy			& 0.967		\\ 
 			Adv Accuracy - FGSM			& 0.222		\\
@@ -874,6 +883,7 @@ The most important attack, defense strategy and model parameters are presented i
 			$\lambda$								& 0.002				\\
 			$\alpha$								& 0				\\
 			$\epsilon$ FGSM					& 0.05		\\
+			Epochs training					& 10			\\
 			
 			Validation Accuracy			& 0.973		\\ 
 			Adv Accuracy - FGSM			& 0.272		\\
@@ -915,6 +925,7 @@ The most important attack, defense strategy and model parameters are presented i
 			$\lambda$								& 0				\\
 			$\alpha$								& 0.5			\\
 			$\epsilon$ FGSM					& 0.05		\\
+			Epochs training					& 10			\\
 			
 			Validation Accuracy			& 0.967		\\ 
 			Adv Accuracy - FGSM			& 0.758		\\
@@ -956,6 +967,7 @@ The most important attack, defense strategy and model parameters are presented i
 			$\lambda$								& 0.002				\\
 			$\alpha$								& 0.5					\\
 			$\epsilon$ FGSM					& 0.05		\\
+			Epochs training					& 10			\\
 			
 			Validation Accuracy			& 0.973		\\ 
 			Adv Accuracy - FGSM			& 0.777		\\
@@ -997,6 +1009,7 @@ The most important attack, defense strategy and model parameters are presented i
 			$\lambda$								& 0				\\
 			$\alpha$								& 0				\\
 			$\epsilon$ FGSM					& 0.05		\\
+			Epochs training					& 10			\\
 			
 			Validation Accuracy			& 0.978		\\ 
 			Adv Accuracy - FGSM			& 0.723		\\
@@ -1038,6 +1051,7 @@ The most important attack, defense strategy and model parameters are presented i
 			$\lambda$								& 0.002				\\
 			$\alpha$								& 0				\\
 			$\epsilon$ FGSM					& 0.05		\\
+			Epochs training					& 10			\\
 			
 			Validation Accuracy			& 0.984		\\ 
 			Adv Accuracy - FGSM			& 0.763		\\
@@ -1080,6 +1094,7 @@ The most important attack, defense strategy and model parameters are presented i
 			$\lambda$								& 0				\\
 			$\alpha$								& 0.5				\\
 			$\epsilon$ FGSM					& 0.05		\\
+			Epochs training					& 10			\\
 			
 			Validation Accuracy			& 0.902		\\ 
 			Adv Accuracy - FGSM			& 0.634		\\
@@ -1109,7 +1124,19 @@ The most important attack, defense strategy and model parameters are presented i
   \label{fig:exp:cm:resnet50_adv}
 \end{figure}
 
+\clearpage
+
 \section{Discussion}
+
+Adversarial defense strategies clearly increase the comprehensibility of Adversarial Inputs for lenet-5, alexnet and vgg19.
+Adversarial Inputs for defended classifiers are much more likely to resemble their target label than Adversarials for undefended classifiers.
+Adversarial Training is able to reach a higher validation accuracy among the validation- and Adversarial Inputs, and also forces TGSM to produce images that are closer to their target than Input Gradient Regularization.
+The reason for this probably lies in the way those defense-strategies work: input gradient regularization prevents small perturbations from changing the outcome by make predictions as stable as possible - the magnitude of changes need to grow to achieve a higher magnitude of change in the output.
+Adversarial Training on the other hand is more sensitive for pockets in the decision boundary.
+If a 'pocket' (or discontinuity in the input-output mapping) close ($\epsilon$) to the input images can be found, it will occur in the adversarial loss function, and force the training process to eliminate it.
+This process leads to even higher Input Gradients
+
+
 
 \chapter{Conclusion and Future Work}
 
