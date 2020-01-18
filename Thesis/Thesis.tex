@@ -71,7 +71,7 @@
 \setaddress{Address}
 \setregnumber{0123456}
 \setdate{01}{01}{2001} % Set date with 3 arguments: {day}{month}{year}.
-\settitle{\thesistitle}{Effect of adversarial training on the decision boundary of convolutional neural networks} % Sets English and German version of the title (both can be English or German).
+\settitle{\thesistitle}{Effect of adversarial defense strategies on the decision boundary of convolutional neural networks} % Sets English and German version of the title (both can be English or German).
 \setsubtitle{Optional Subtitle of the Thesis}{Optionaler Untertitel der Arbeit} % Sets English and German version of the subtitle (both can be English or German).
 
 % Select the thesis type: bachelor / master / doctor / phd-school.
@@ -702,6 +702,7 @@ The following sections contain the results of the experiment, each heading for a
     \label{fig:exp:cm:alex:different}
   \end{subfigure}
   \caption{Targeted Basic Iterative Method, $\epsilon = 0.01$, 15 iterations}
+	\label{fig:exp:cm:alex}
 \end{figure}
 \clearpage
 
@@ -823,6 +824,7 @@ The following sections contain the results of the experiment, each heading for a
     \label{fig:exp:cm:alex_gradreg_adv:different}
   \end{subfigure}
   \caption{Targeted Basic Iterative Method, $\epsilon = 0.01$, 15 iterations}
+	\label{fig:exp:cm:alex_gradreg_adv}
 \end{figure}
 \clearpage
 
@@ -1129,16 +1131,25 @@ The following sections contain the results of the experiment, each heading for a
 \section{Discussion}
 
 Adversarial defense strategies clearly increase the comprehensibility of Adversarial Inputs for lenet-5, alexnet and vgg19.
+%todo: lenet-5 mehr training - nicht komplex genug?
+% alle enthalten artifacts - feiner je deeper net
 Adversarial Inputs for defended classifiers are much more likely to resemble their target label than Adversarials for undefended classifiers.
+This effect can be particularly well observed when comparing the confusion-matrices for an alexnet with no defenses (\ref{fig:exp:cm:alex}) to the one of an alexnet with a combination of two defense techniques (\ref{fig:exp:cm:alex_gradreg_adv}).
+The Adversarials for the defended version almost fully resemble their target, and contain less random artifacts than the results for the undefended one.
+For all versions of the ResNet50 the strongest observable difference between the original and the perturbed inputs are fine-grained artifacts, the defense strategies made almost no difference.
+Also, the Adversarial Training for the ResNet-50 could not be performed for more than 10 epochs due to GPU-Memory issues, which is probably the reason adversarial training even decreased the validation- and adversarial accuracy.
+\\
 Adversarial Training is able to reach a higher validation accuracy among the validation- and Adversarial Inputs, and also forces TGSM to produce images that are closer to their target than Input Gradient Regularization.
-The reason for this probably lies in the way those defense-strategies work: input gradient regularization prevents small perturbations from changing the outcome by make predictions as stable as possible - the magnitude of changes need to grow to achieve a higher magnitude of change in the output.
-Adversarial Training on the other hand is more sensitive for pockets in the decision boundary.
-If a 'pocket' (or discontinuity in the input-output mapping) close ($\epsilon$) to the input images can be found, it will occur in the adversarial loss function, and force the training process to eliminate it.
-This process leads to even higher Input Gradients
-
+Input Gradient Regularization was able to decrease the Input Gradient for all combinations of networks and defense strategies, while Adversarial Training had the opposite effect on that value.
 
 
 \chapter{Conclusion and Future Work}
+
+Adversarial defenses do not only increase the accuracy for inputs created with Adversarial Attacks, but also the comprehensibility for the classifiers decision on that modified data. 
+In the experiments Adversarial Training was more successful for both the accuracy and comprehensibility of Adversarials than Input Gradient Regularization.
+The reason for this probably lies in the way those defense-strategies work: input gradient regularization prevents small perturbations from changing the outcome by make predictions as stable as possible - the magnitude of changes need to grow to achieve a higher magnitude of change in the output.
+Adversarial Training on the other hand is more sensitive for pockets in the decision boundary.
+If a 'pocket' (or discontinuity in the input-output mapping) close ($\epsilon$) to the input images can be found, it will occur in the adversarial loss function, and force the training process to eliminate it.
 
 \backmatter
 
