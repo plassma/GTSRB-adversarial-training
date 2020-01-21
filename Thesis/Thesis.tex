@@ -18,11 +18,13 @@
 \usepackage{multirow}   % Allows table elements to span several rows.
 \usepackage{booktabs}   % Improves the typesettings of tables.
 \usepackage{subcaption} % Allows the use of subfigures and enables their referencing.
+\usepackage{placeins}
 \usepackage[ruled,linesnumbered,algochapter]{algorithm2e} % Enables the writing of pseudo code.
 \usepackage[usenames,dvipsnames,table]{xcolor} % Allows the definition and use of colors. This package has to be included before tikz.
 \usepackage{nag}       % Issues warnings when best practices in writing LaTeX documents are violated.
 \usepackage{hyperref}  % Enables cross linking in the electronic document version. This package has to be included second to last.
 \usepackage[acronym,toc]{glossaries} % Enables the generation of glossaries and lists fo acronyms. This package has to be included last.
+
 
 % Define convenience functions to use the author name and the thesis title in the PDF document properties.
 \newcommand{\authorname}{Matthias Plasser} % The author name without titles.
@@ -99,12 +101,17 @@
 \addtitlepage{english} % English title page.
 \addstatementpage
 
-\begin{kurzfassung}
-\todo{Ihr Text hier.}
-\end{kurzfassung}
-
 \begin{abstract}
-\todo{Enter your text here.}
+Neural Networks are more powerful than ever, but still have security-relevant weaknesses: their decision-making cannot be understood fully yet, but still be hijacked easily.
+Many techniques exist for manipulating inputs for neural networks in a way to get misclassified, although to a human there is no perceptible difference to the original input.
+Adversarial Examples suggest, that neural networks do not learn true universal underlying concepts from their training data, but just a concept that works on the given data distribution.
+This work examines, how strategies for defending neural networks against adversarial attacks influence the decision boundary of neural networks in two experiments.
+As the decision boundary of neural networks is an abstract, high dimensional hyperplane it gets examined indirectly.
+One experiment examines how adversarial training enables neural networks to recognize some adversarial examples.
+The second experiment visualizes how adversarial examples that are constructed for defended networks distinguish from undefended models.
+Adversarial training increases a classifier's ability to recognize adversarial examples, although not nearly as many as validation examples.
+Furthermore, defended models force adversarial attacks to craft inputs, that are easier distinguishable from the original input.
+
 \end{abstract}
 
 % Select the language of the thesis, e.g., english or naustrian.
@@ -295,8 +302,6 @@ The second experiment examines the appearance of Adversarial Examples, as the de
 The German Traffic Sign Recognition Benchmark is used as original training data. The set consists of 39209 labeled 64x64 RGB images for training, and 12630 for validation.
 The images are distributed unevenly among the classes, and contain little distortions.
 
-%todo: add example image?
-%todo: show distribution?
 
 \section{Neural Network Architectures}
 
@@ -334,7 +339,7 @@ As malicious versions or wrong combinations of Tensorflow and cuDNN versions oft
   \centering
   \begin{tabular}{cl}
     \toprule
-Name                                    & Version   \\
+		Name                                & Version   \\
     \midrule
     Numpy                               & 16.16.6	  \\
     Tensorflow                          & 1.14.0    \\
@@ -415,6 +420,8 @@ A shift of areas that were most important for an image's classification is expec
   \caption{Heatmaps for lenet-5 correctly classifying 'Vehicles over 3.5 metric tons prohibited'}
 \end{figure}
 
+\FloatBarrier
+
 \subsection{alexnet}
 
 \begin{figure}[h]
@@ -433,6 +440,7 @@ A shift of areas that were most important for an image's classification is expec
   \caption{Accuracies of alexnet in iterative Adversarial Training}
 \end{figure}
 
+\FloatBarrier
 \subsection{vgg19}
 
 \begin{figure}[h]
@@ -451,6 +459,7 @@ A shift of areas that were most important for an image's classification is expec
   \caption{Accuracies of vgg19 in iterative Adversarial Training}
 \end{figure}
 
+\FloatBarrier
 \subsection{resnet-50}
 
 Unfortunately, the experiment could not be performed for the resnet-50, as the accuracy did not rise above 0.05.
@@ -460,7 +469,7 @@ The reason for this probably lies in the high complexity of the adversarial loss
 \section{Discussion}
 
 
-For every architecture, Adversarial Training clearly does increase the robustness for FGSM attacks, while maintaining or even improving the validation accuracy.
+For every architecture, Adversarial Training clearly does increase the robustness for FGSM attacks, while maintaining the validation accuracy.
 The adversary accuracies are consistently increased for all Adversary Input sets generated during the experiment, which means that the classifiers actually learn to recognize
 Adversary Inputs, and not to 'hide' them from FGSM while still being vulnerable to them.
 It seems like more complex networks are more adversarially robust, although that cannot be concluded by comparing the performance of 3 architectures.\\
@@ -475,7 +484,6 @@ The adversarial robustness is not a result of focusing on more stable features, 
 In this chapter the second experiment and its results will be described and discussed in detail.
 
 \section{Description}
-
 This experiment is about visualizing the decision-boundary indirectly through Adversarial Inputs that are generated by iterative targeted FGSM.
 Targeted FGSM modifies inputs in the direction of the closest decision boundary.
 By examining the appearance of those Adversarials, conclusions about the decision boundary can be made.
@@ -484,16 +492,16 @@ These trained models will be attacked using the targeted Basic Iterative Method,
 The results of the attack - the Adversarial images are ordered in a matrix.
 Each column has the same attack target, while each row consists of the same original input - the determinant depicts the original inputs.
 A table containing accuracies and defense parameters for each combination of network architecture and defense strategy is given.
-$\alpha$ and $\epsilon$ FGSM stand for the weight of the adversarial loss and the maximal perturbation of Adversarial Inputs in the adversarial training loss function \ref{eq:adv_loss}, while $\lambda$ denotes the regularization-coefficient from \ref{eq:gradreg}.
+$\alpha$ and $\epsilon$ FGSM stand for the weight of the adversarial loss and the maximal perturbation of Adversarial Inputs in the adversarial training loss function \ref{eq:adv_loss}, while $\lambda$ denotes the regularization-coefficient from \ref{eq:gradreg}. $\lambda$ was chosen heuristically and set to a value that did not decrease the validation accuracy much, while having a decreasing effect on the Input Gradient.
 Additionally, the average and maximal input gradient among the validation-set is given.
-%todo: training params beschreiben
+All combinations of architecture and defense strategy where trained for 10 epochs, except the lenet-5 which was trained for 20 epochs.
+The learning rate was 0.001 for the first 9 epochs and 0.0001 afterward for all combinations.
 
 
 \section{Results}
 
 The following sections contain the results of the experiment, each heading for a different combination of model and defense strategy.
 
-\clearpage
 
 \subsection{lenet-5 with no defenses implemented}
 
@@ -532,7 +540,7 @@ The following sections contain the results of the experiment, each heading for a
     \subcaption{Targeted BIM for different Images}
     \label{fig:exp:cm:lenet-5:different}
   \end{subfigure}
-  \caption{Targeted Basic Iterative Method, $\epsilon = 0.03$, 15 iterations}
+  \caption{Targeted Basic Iterative Method on lenet-5 with no defenses}
   \label{fig:exp:cm:lenet-5}
 \end{figure}
 \clearpage
@@ -574,7 +582,7 @@ The following sections contain the results of the experiment, each heading for a
     \subcaption{Targeted BIM for different Images}
     \label{fig:exp:cm:lenet-5_gradreg:different}
   \end{subfigure}
-  \caption{Targeted Basic Iterative Method, $\epsilon = 0.03$, 15 iterations}
+  \caption{Targeted Basic Iterative Method on lenet-5 with Input Gradient Regularization}
   \label{fig:exp:cm:lenet-5_gradreg}
 \end{figure}
 \clearpage
@@ -616,7 +624,7 @@ The following sections contain the results of the experiment, each heading for a
     \subcaption{Targeted BIM for different Images}
     \label{fig:exp:cm:lenet-5_adv:different}
   \end{subfigure}
-  \caption{Targeted Basic Iterative Method, $\epsilon = 0.03$, 15 iterations}
+  \caption{Targeted Basic Iterative Method on lenet-5 with Adversarial Training}
   \label{fig:exp:cm:lenet-5_adv}
 \end{figure}
 \clearpage
@@ -658,7 +666,7 @@ The following sections contain the results of the experiment, each heading for a
     \subcaption{Targeted BIM for different Images}
     \label{fig:exp:cm:lenet-5_gradreg_adv:different}
   \end{subfigure}
-  \caption{Targeted Basic Iterative Method, $\epsilon = 0.03$, 15 iterations}
+  \caption{Targeted Basic Iterative Method on lenet-5 with Adversarial Training and Input Gradient Regularization}
   \label{fig:exp:cm:lenet-5_gradreg_adv}
 \end{figure}
 \clearpage
@@ -701,7 +709,7 @@ The following sections contain the results of the experiment, each heading for a
     \subcaption{Targeted BIM for different Images}
     \label{fig:exp:cm:alex:different}
   \end{subfigure}
-  \caption{Targeted Basic Iterative Method, $\epsilon = 0.01$, 15 iterations}
+  \caption{Targeted Basic Iterative Method on alexnet with no defenses}
 	\label{fig:exp:cm:alex}
 \end{figure}
 \clearpage
@@ -743,7 +751,7 @@ The following sections contain the results of the experiment, each heading for a
     \subcaption{Targeted BIM for different Images}
     \label{fig:exp:cm:alex_gradreg:different}
   \end{subfigure}
-  \caption{Targeted Basic Iterative Method, $\epsilon = 0.01$, 15 iterations}
+  \caption{Targeted Basic Iterative Method on alexnet with Input Gradient Regularization}
 \end{figure}
 \clearpage
 
@@ -783,7 +791,7 @@ The following sections contain the results of the experiment, each heading for a
     \subcaption{Targeted BIM for different Images}
     \label{fig:exp:cm:alex_adv:different}
   \end{subfigure}
-  \caption{Targeted Basic Iterative Method, $\epsilon = 0.01$, 15 iterations}
+  \caption{Targeted Basic Iterative Method on alexnet with Adversarial Training}
 \end{figure}
 \clearpage
 
@@ -823,11 +831,10 @@ The following sections contain the results of the experiment, each heading for a
     \subcaption{Targeted BIM for different Images}
     \label{fig:exp:cm:alex_gradreg_adv:different}
   \end{subfigure}
-  \caption{Targeted Basic Iterative Method, $\epsilon = 0.01$, 15 iterations}
+  \caption{Targeted Basic Iterative Method on alexnet with Adversarial Training and Input Gradient Regularization}
 	\label{fig:exp:cm:alex_gradreg_adv}
 \end{figure}
 \clearpage
-
 
 
 \subsection{vgg19 with no defenses implemented}
@@ -867,7 +874,7 @@ The following sections contain the results of the experiment, each heading for a
     \subcaption{Targeted BIM for different Images}
     \label{fig:exp:cm:vgg19:different}
   \end{subfigure}
-  \caption{Targeted Basic Iterative Method, $\epsilon = 0.03$, 15 iterations}
+  \caption{Targeted Basic Iterative Method on vgg19 with no defenses}
   \label{fig:exp:cm:vgg19}
 \end{figure}
 \clearpage
@@ -911,7 +918,7 @@ The following sections contain the results of the experiment, each heading for a
     \subcaption{Targeted BIM for different Images}
     \label{fig:exp:cm:vgg19_gradreg:different}
   \end{subfigure}
-  \caption{Targeted Basic Iterative Method, $\epsilon = 0.03$, 15 iterations}
+  \caption{Targeted Basic Iterative Method on vgg19 with Input Gradient Regularization}
   \label{fig:exp:cm:vgg19_gradreg}
 \end{figure}
 \clearpage
@@ -953,7 +960,7 @@ The following sections contain the results of the experiment, each heading for a
     \subcaption{Targeted BIM for different Images}
     \label{fig:exp:cm:vgg19_adv:different}
   \end{subfigure}
-  \caption{Targeted Basic Iterative Method, $\epsilon = 0.03$, 15 iterations}
+  \caption{Targeted Basic Iterative Method on vgg19 with Adversarial Training}
   \label{fig:exp:cm:vgg19_adv}
 \end{figure}
 \clearpage
@@ -995,7 +1002,7 @@ The following sections contain the results of the experiment, each heading for a
     \subcaption{Targeted BIM for different Images}
     \label{fig:exp:cm:vgg19_gradreg_adv:different}
   \end{subfigure}
-  \caption{Targeted Basic Iterative Method, $\epsilon = 0.03$, 15 iterations}
+  \caption{Targeted Basic Iterative Method on vgg19 with Input Gradient Regularization and Adversarial Training}
   \label{fig:exp:cm:vgg19_gradreg_adv}
 \end{figure}
 \clearpage
@@ -1037,7 +1044,7 @@ The following sections contain the results of the experiment, each heading for a
     \subcaption{Targeted BIM for different Images}
     \label{fig:exp:cm:resnet50:different}
   \end{subfigure}
-  \caption{Targeted Basic Iterative Method, $\epsilon = 0.03$, 15 iterations}
+  \caption{Targeted Basic Iterative Method on ResNet50 with no defenses}
   \label{fig:exp:cm:resnet50}
 \end{figure}
 \clearpage
@@ -1079,7 +1086,7 @@ The following sections contain the results of the experiment, each heading for a
     \subcaption{Targeted BIM for different Images}
     \label{fig:exp:cm:resnet50_gradreg:different}
   \end{subfigure}
-  \caption{Targeted Basic Iterative Method, $\epsilon = 0.03$, 15 iterations}
+  \caption{Targeted Basic Iterative Method on ResNet50 with Input Gradient Regularization}
   \label{fig:exp:cm:resnet50_gradreg}
 \end{figure}
 \clearpage
@@ -1122,7 +1129,7 @@ The following sections contain the results of the experiment, each heading for a
     \subcaption{Targeted BIM for different Images}
     \label{fig:exp:cm:resnet50_adv:different}
   \end{subfigure}
-  \caption{Targeted Basic Iterative Method, $\epsilon = 0.03$, 15 iterations}
+  \caption{Targeted Basic Iterative Method on ResNet50 with Adversarial Training}
   \label{fig:exp:cm:resnet50_adv}
 \end{figure}
 
@@ -1131,15 +1138,16 @@ The following sections contain the results of the experiment, each heading for a
 \section{Discussion}
 
 Adversarial defense strategies clearly increase the comprehensibility of Adversarial Inputs for lenet-5, alexnet and vgg19.
-%todo: lenet-5 mehr training - nicht komplex genug?
-% alle enthalten artifacts - feiner je deeper net
 Adversarial Inputs for defended classifiers are much more likely to resemble their target label than Adversarials for undefended classifiers.
 This effect can be particularly well observed when comparing the confusion-matrices for an alexnet with no defenses (\ref{fig:exp:cm:alex}) to the one of an alexnet with a combination of two defense techniques (\ref{fig:exp:cm:alex_gradreg_adv}).
 The Adversarials for the defended version almost fully resemble their target, and contain less random artifacts than the results for the undefended one.
 For all versions of the ResNet50 the strongest observable difference between the original and the perturbed inputs are fine-grained artifacts, the defense strategies made almost no difference.
-Also, the Adversarial Training for the ResNet-50 could not be performed for more than 10 epochs due to GPU-Memory issues, which is probably the reason adversarial training even decreased the validation- and adversarial accuracy.
 \\
-Adversarial Training is able to reach a higher validation accuracy among the validation- and Adversarial Inputs, and also forces TGSM to produce images that are closer to their target than Input Gradient Regularization.
+Also, the Adversarial Training for the ResNet-50 could not be performed for more than 10 epochs due to GPU-Memory issues, which is probably the reason adversarial training even decreased the validation- and adversarial accuracy.
+For the lenet-5 adversarial training decreased the validation accuracy significantly, even after an increase of training epochs from 10 to 20.
+The more complex and deep the defended network was, the less was the negative impact of the use of defense strategies on the validation accuracy.
+\\
+Adversarial Training is able to reach a higher validation accuracy among and Adversarial Inputs, and also forces TGSM to produce images that are closer to their target than Input Gradient Regularization.
 Input Gradient Regularization was able to decrease the Input Gradient for all combinations of networks and defense strategies, while Adversarial Training had the opposite effect on that value.
 
 
@@ -1150,6 +1158,12 @@ In the experiments Adversarial Training was more successful for both the accurac
 The reason for this probably lies in the way those defense-strategies work: input gradient regularization prevents small perturbations from changing the outcome by make predictions as stable as possible - the magnitude of changes need to grow to achieve a higher magnitude of change in the output.
 Adversarial Training on the other hand is more sensitive for pockets in the decision boundary.
 If a 'pocket' (or discontinuity in the input-output mapping) close ($\epsilon$) to the input images can be found, it will occur in the adversarial loss function, and force the training process to eliminate it.
+The reason shallower networks do suffer a decrease of the validation accuracy by being adversarially defended may be, that an input-output mapping not vulnerable to FGSM is too complex for them to represent.
+\\
+Another interesting measure for the effects of Adversarial Training using FGSM on the adversarial robustness of classifiers could be determined using other, not gradient based attacks like the Single Pixel Attack.
+For a further examination of the effects of Adversarial Defense strategies on the decision boundary of neural networks, a synthesis of images could be performed using targeted BIM.
+Instead of using existing images as a start for an the Adversarial Attack, blank images could be used, to visualize, how the learned concept of a label looks.
+By comparing the appearance of images created by targeted BIM that way, additional information about the decision boundary could be gathered.
 
 \backmatter
 
@@ -1159,8 +1173,6 @@ If a 'pocket' (or discontinuity in the input-output mapping) close ($\epsilon$) 
 % Use an optional list of tables.
 \listoftables % Starred version, i.e., \listoftables*, removes the toc entry.
 
-% Use an optional list of alogrithms.
-\listofalgorithms
 \addcontentsline{toc}{chapter}{List of Algorithms}
 
 % Add an index.
