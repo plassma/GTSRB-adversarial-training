@@ -12,8 +12,8 @@ def grad_CAM_plus(model, imgs):
     sess = tf.Session()
 
     # define your tensor placeholders for, labels and images
-    label_vector = tf.placeholder("float32", [None, 43])
-    label_index = tf.placeholder("int64", ())
+    label_vector = tf.compat.v1.placeholder("float32", [None, 43])
+    label_index = tf.compat.v1.placeholder("int64", ())
 
     with tf.name_scope("content_vgg"):
         model.build(model.input)
