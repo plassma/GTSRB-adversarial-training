@@ -28,7 +28,7 @@
 
 % Define convenience functions to use the author name and the thesis title in the PDF document properties.
 \newcommand{\authorname}{Matthias Plasser} % The author name without titles.
-\newcommand{\thesistitle}{Title of the Thesis} % The title of the thesis. The English version should be used, if it exists.
+\newcommand{\thesistitle}{Effects of adversarial defense strategies on the decision boundary of convolutional neural networks} % The title of the thesis. The English version should be used, if it exists.
 % mycommands
 \newcommand{\norm}[1]{\left\lVert#1\right\rVert}
 
@@ -58,23 +58,23 @@
 \setadvisor{Ao.univ.Prof. Dr.}{Andreas Rauber}{}{male}
 
 % For bachelor and master theses:
-\setfirstassistant{Pretitle}{Forename Surname}{Posttitle}{male}
-\setsecondassistant{Pretitle}{Forename Surname}{Posttitle}{male}
-\setthirdassistant{Pretitle}{Forename Surname}{Posttitle}{male}
+%\setfirstassistant{Pretitle}{Forename Surname}{Posttitle}{male}
+%\setsecondassistant{Pretitle}{Forename Surname}{Posttitle}{male}
+%\setthirdassistant{Pretitle}{Forename Surname}{Posttitle}{male}
 
 % For dissertations:
-\setfirstreviewer{Pretitle}{Forename Surname}{Posttitle}{male}
-\setsecondreviewer{Pretitle}{Forename Surname}{Posttitle}{male}
+%\setfirstreviewer{Pretitle}{Forename Surname}{Posttitle}{male}
+%\setsecondreviewer{Pretitle}{Forename Surname}{Posttitle}{male}
 
 % For dissertations at the PhD School:
-\setsecondadvisor{Pretitle}{Forename Surname}{Posttitle}{male}
+%\setsecondadvisor{Pretitle}{Forename Surname}{Posttitle}{male}
 
 % Required data.
 \setaddress{Address}
-\setregnumber{0123456}
-\setdate{01}{01}{2001} % Set date with 3 arguments: {day}{month}{year}.
-\settitle{\thesistitle}{Effect of adversarial defense strategies on the decision boundary of convolutional neural networks} % Sets English and German version of the title (both can be English or German).
-\setsubtitle{Optional Subtitle of the Thesis}{Optionaler Untertitel der Arbeit} % Sets English and German version of the subtitle (both can be English or German).
+\setregnumber{01627777}
+\setdate{23}{01}{2020} % Set date with 3 arguments: {day}{month}{year}.
+\settitle{\thesistitle}{Effects of adversarial defense strategies on the decision boundary of convolutional neural networks} % Sets English and German version of the title (both can be English or German).
+%\setsubtitle{Optional Subtitle of the Thesis}{Optionaler Untertitel der Arbeit} % Sets English and German version of the subtitle (both can be English or German).
 
 % Select the thesis type: bachelor / master / doctor / phd-school.
 % Bachelor:
@@ -84,8 +84,8 @@
 \setcurriculum{Software and Information Engineering}{Software und Information Engineering} % Sets the English and German name of the curriculum.
 
 % For dissertations at the PhD School:
-\setfirstreviewerdata{Affiliation, Country}
-\setsecondreviewerdata{Affiliation, Country}
+%\setfirstreviewerdata{Affiliation, Country}
+%\setsecondreviewerdata{Affiliation, Country}
 
 % Define convenience macros.
 \newcommand{\todo}[1]{{\color{red}\textbf{TODO: {#1}}}} % Comment for the final version, to raise errors.
@@ -97,9 +97,9 @@
 % The structure of the thesis has to conform to
 %  http://www.informatik.tuwien.ac.at/dekanat
 
-\addtitlepage{naustrian} % German title page (not for dissertations at the PhD School).
+%\addtitlepage{naustrian} % German title page (not for dissertations at the PhD School).
 \addtitlepage{english} % English title page.
-\addstatementpage
+%\addstatementpage
 
 \begin{abstract}
 Neural Networks are more powerful than ever, but still have security-relevant weaknesses: their decision-making cannot be understood fully yet, but still be hijacked easily.
@@ -254,7 +254,24 @@ Back in 1200s William of Ockham formulated his law of parsimony, also known as o
 How this translates to machine learning is not very clear, but still it can be shown for some learning problems, that solutions that require a shorter explanation in any bit-wise representation perform better than longer explanations \cite{Blumer1987}.\\
 As the decision boundary of DNNs is encoded into the weights, the length of their bit-wise representation is constant, but it is still intuitive, that simpler, smoother decision-boundaries provide predictions that are more stable, especially when recalling the explanation for the existence of Adversarial Examples.
 
-\subsection{Grad-Cam-plus-plus}
+\section{Grad-CAM++}
+
+Grad-CAM++ is a progression and generalization of Grad-CAM, a visual approach of explaining decisions of CNNs using gradient weighted class activation maps.
+As spatial locality is preserved in feature maps ($A$) of CNNs, the importance of a location $i j$ for class $c$ can be written as:
+
+\begin{equation}
+	L_{ij}^c = \sum_{k} w_k^c * A^k
+\end{equation}
+
+The difference between CAM, Grad-CAM and Grad-CAM++ lies in the determination of $w_k^c$, the weight of the $k^{th}$ feature map.
+In Grad-CAM++ $w_k^c$ is calculated as follows, where $Y^c$ denotes the output activation for class $c$ (sum over all spatial locations), $relu$ is the rectified linear unit function
+
+\begin{equation}
+	w_k^c = \sum_i \sum_j \alpha_{ij}^{kc} * relu(\frac{\partial Y^c}{\partial A_{ij}^k})
+\end{equation}
+
+$\alpha_{ij}^{kc}$ are weighting coefficients, that make sure the presence of objects in feature maps are highlighted with equal importance regardless of their activation.
+The reason the $relu$ function is used is, that only features that increase the desired output are meaningful in a visualization.
 \cite{Chattopadhyay2017}
 \label{section:grad_cam}
 
