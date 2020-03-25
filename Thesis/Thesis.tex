@@ -421,19 +421,21 @@ As versions containing bugs, or incompatible combinations of Tensorflow and cuDN
 \end{table}
 
 
-\chapter{Experiment - Iterative Adversarial Training}
-In this chapter the first experiment and its results will be described and discussed in detail.
+\chapter{Iterative Adversarial Training}
+In this chapter the first study and its results will be described and discussed in detail.
 
 \section{Description}
 
-In this experiment adversary training is performed iteratively, each iteration consisting of some evaluation steps and a run of adversary training.
+In this experiment adversary training is performed iteratively, each iteration consisting of evaluation steps and a run of adversary training.
 Two modes of training are distinguished: in one mode no defenses are applied, while in the other the loss function is modified to weigh Adversarial Loss with $\alpha = 0.5$ (see Equation \ref{eq:adv_loss}).
 In each iteration Adversary Inputs are generated from the validation set using untargeted FGSM with $\epsilon = 0.05$.
 The Adversary Input sets do not get filtered, and contain actual Adversary Inputs as well as Inputs that still get classified correctly.
 The accuracies on those Adversary Sets are considered proportional to the Adversary Robustness of a classifier.
 The model is then trained for an epoch, and its accuracy is evaluated not only against the validation- and the current Adversary Input set, but also against all preceding Adversary Input sets, before the next iteration begins.
-Additionally, heatmaps (see \ref{section:grad_cam}) that expose what areas of an input were most important for the model's decision are created for some inputs from the validation set and the current Adversary input set before and after the Adversary Training.
+Additionally, heatmaps (see Section \ref{section:grad_cam}) that expose what areas of an input were most important for the model's decision are created for some inputs from the validation set and the current Adversary input set before and after the Adversary Training.
 A shift of areas that were most important for an image's classification is expected towards features that appear like key features to a human.
+
+\newpage
 
 \section{Results}
 
@@ -453,7 +455,13 @@ A shift of areas that were most important for an image's classification is expec
     \label{fig:exp:iat:lenet-5:loss}
   \end{subfigure}
   \caption{Accuracies of lenet-5 in iterative Adversarial Training}
+	\label{fig:exp:iat:lenet-5}
 \end{figure}
+
+Figure \ref{fig:exp:iat:lenet-5} shows a comparison of accuracies of a lenet-5 with a regular loss function and a adversarial loss function.
+The most striking difference between the two is, that the accuracy of model with the adversarial loss function does not rise as fast and high as the model with regular loss function's accuracy on the test set.
+On the other hand, as expected the accuracy of the adversarially trained model on the adversarial sets is higher than the accuracy of the regularly trained model.
+
 
 \begin{figure}[h]
 	\begin{subfigure}[b]{0.5\columnwidth}
