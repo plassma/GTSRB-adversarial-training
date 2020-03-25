@@ -337,15 +337,29 @@ The experiments of this work, also utilize Input Gradient Regularization, and Ad
 
 \chapter{Methodology}
 
-This chapter will in describe how the experiments of this work were performed, and how they expose information about the decision boundary.\\
+This chapter will in describe the analytical approach as well as how the experiments of this work expose information about decision boundaries of CNNs.\\
 
+As CNN's decision boundaries, due to their high dimensionality usually are hard to represent or grasp, direct measurements and examinations are hardly feasible.
+Therefore indirect representations of the decision boundary and process are needed.\\
+One such representation of characteristics of the decision boundary are heatmaps, maps that highlight areas of an image that are most important for it's classification.
+The way adversarial defense strategies improve the recognition of adversarial examples could exhibit information about the decision process, as it might for example cause a shift of focus on features that are more stable than features an undefended CNN focuses on.\\
+For the examination of that potential shift of focus on features, an experiment was performed.
 In the experiment, different network architectures are trained using different defense strategies: adversarial training, input gradient regularization and a combination of both.
-As decision-boundaries in 12,288 (=$64*64*3$) dimensions might be challenging to visualize and grasp, their shape is studied in indirect ways.\\
-In both experiments Categorical Crossentropy is used as loss function, and training is done over 10 epochs for all network architectures.
+The classifiers distinguish between 43 classes of images of $64*64$ pixels in RGB, and thus have decision-boundaries in 12,288 (=$64*64*3$) dimensions.
+
+Categorical Crossentropy is used as loss function, and training is done over 10 epochs for all network architectures.
 The learning rate is 0.001 for the first 9 epochs, and decreased to 0.0001 only in the last epoch.
-The first experiment examines the effects of Adversarial Training on the decision boundaries in terms of accuracy iteratively.
-Additionally, in the first experiment heatmaps that highlight most important areas for the classification of an image are created, for comparison.
-The second experiment examines the appearance of Adversarial Examples, as the decision boundary lies between the original input and the perturbed one.
+In each epoch, heatmaps for a randomly selected subset of the test-inputs are created and compared.\\
+
+Another indirect representation of the decision boundary can be found in adversarial inputs themselves.
+As those inputs are created by manipulating an image that is (usually) on the correct side of the decision boundary in a way it crosses that boundary.
+So the decision boundary lies in between the original and the perturbed input.
+The higher the precision ("correctness") of the decision boundary, the higher the noticeable difference between the original and the adversarial input should be.
+Seen from an other perspective the higher the precision ("correctness") of the decision boundary, the more similarity should be observable between an adversarial image and it's target class.
+For the examination of the similarity between adversarial inputs and their target class for defended and undefended classifiers, another experiment visualizing adversarial inputs with different target labels for different architectures was performed.
+The difference of the appearance of adversarials for defended and undefended models should exhibit that improvement of precision of the decision boundary with a higher similarity between adversarial image and target image for defended models than for undefended.
+Another measure of characteristics of the decision boundary is the input gradient, which was also measured for different architectures with different defense strategies in that experiment.
+As the input gradient denotes the change of the output value in relation to change of the input value, a lower input gradient indicates a smoother decision boundary, with a potential higher degree of generalization.
 
 \section{Training Data}
 
@@ -381,7 +395,7 @@ The VGG19 and the ResNet are not fully trained from scratch, but already pretrai
 The implementation of the experiments is done in python 3.5 using Tensorflow, Keras and Cleverhans.
 For verification and reproducibility, the source code of the experiments is available on github: \url{https://github.com/plassma/GTSRB-adversarial-training}
 Parts of the program were copied from a Keras Model demo Maximilian Idahl published on github under the MIT license \cite{Idahl2018}.
-As malicious versions or wrong combinations of Tensorflow and cuDNN versions often led to problems, a version-table of the most important frameworks used is included:
+As versions containing bugs, or incompatible combinations of Tensorflow and cuDNN versions often led to problems, a version-table of the most important frameworks used is included:
 
 \section{Frameworks}
 
