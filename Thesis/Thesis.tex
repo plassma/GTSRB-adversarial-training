@@ -25,6 +25,10 @@
 \usepackage{hyperref}  % Enables cross linking in the electronic document version. This package has to be included second to last.
 \usepackage[acronym,toc]{glossaries} % Enables the generation of glossaries and lists fo acronyms. This package has to be included last.
 
+\usepackage{array}
+\usepackage{longtable}
+\usepackage{csvsimple}
+
 
 % Define convenience functions to use the author name and the thesis title in the PDF document properties.
 \newcommand{\authorname}{Matthias Plasser} % The author name without titles.
@@ -360,7 +364,7 @@ For the examination of the similarity between adversarial inputs and their targe
 The difference of the appearance of adversarials for defended and undefended models should exhibit that improvement of precision of the decision boundary with a higher similarity between adversarial image and target image for defended models than for undefended.
 Another measure of characteristics of the decision boundary is the input gradient, which was also measured for different architectures with different defense strategies in that experiment.
 As the input gradient denotes the change of the output value in relation to change of the input value, a lower input gradient indicates a smoother decision boundary, with a potential higher degree of generalization.
-
+%todo: add motivation for different architectures
 \section{Training Data}
 
 The German Traffic Sign Recognition Benchmark is used as original training data. The set consists of 39209 labeled 64x64 RGB images for training, and 12630 for validation.
@@ -458,7 +462,24 @@ A shift of areas that were most important for an image's classification is expec
 	\label{fig:exp:iat:lenet-5}
 \end{figure}
 
-Figure \ref{fig:exp:iat:lenet-5} shows a comparison of accuracies of a lenet-5 with a regular loss function and a adversarial loss function.
+
+\begin{table}[h]
+	\noindent\makebox[\textwidth]{%
+		\begin{tabular}{|c|c|c|c|c|c|c|c|c|c|c|c|}%
+				\hline
+				\bfseries Loss & \bfseries Test & \bfseries Adv1& \bfseries Adv2& \bfseries Adv3& \bfseries Adv4& \bfseries Adv5& \bfseries Adv6& \bfseries Adv7& \bfseries Adv8& \bfseries Adv9& \bfseries Adv10\\
+				\hline
+				\csvreader[
+					no head,table head=\hline,late after line=\\\hline]
+					{graphics/Results/iterative_adversarial_training/lenet-5/accuracies.csv}{}
+					{\csvcoli & \csvcolii & \csvcoliii & \csvcoliv & \csvcolv & \csvcolvi & \csvcolvii & \csvcolviii & \csvcolix & \csvcolx & \csvcolxi & \csvcolxii}
+		\end{tabular}
+		}
+		\caption{Accuracies in the last epoch for undefended and adversarial loss}
+\end{table}
+
+
+Figure \ref{fig:exp:iat:lenet-5} shows a comparison of accuracies of a lenet-5 with a regular loss function and an adversarial loss function.
 The most striking difference between the two is, that the accuracy of model with the adversarial loss function does not rise as fast and high as the model with regular loss function's accuracy on the test set.
 On the other hand, as expected the accuracy of the adversarially trained model on the adversarial sets is higher than the accuracy of the regularly trained model.
 
@@ -493,6 +514,13 @@ On the other hand, as expected the accuracy of the adversarially trained model o
 	\label{fig:exp:iat:heatmap}
 \end{figure}
 
+Figure \ref{fig:exp:iat:heatmap} compares heatmaps for a letnet-5 correctly classifying the sign 'vehicles over 3.5 metric tons prohibited'.
+Heatmaps of this kind were made for 100 randomly selected pictures from the test set in each epoch of training.
+There is neither a remarkable difference in heatmaps between epoch 1 and epoch 10, nor between the heatmaps of different defense strategies.
+This was also the case for the other architectures used in this work.
+Therefore the heatmaps for the remaining architectures were omitted in the Results chapter, and put into the appendix.
+%todo: add more heatmaps in appendix - 2 per architecture - link here
+
 \FloatBarrier
 
 \subsection{alexnet}
@@ -513,7 +541,26 @@ On the other hand, as expected the accuracy of the adversarially trained model o
   \caption{Accuracies of alexnet in iterative Adversarial Training}
 \end{figure}
 
+\begin{table}[h]
+	\noindent\makebox[\textwidth]{%
+		\begin{tabular}{|c|c|c|c|c|c|c|c|c|c|c|c|}%
+				\hline
+				\bfseries Epoch & \bfseries Test & \bfseries Adv1& \bfseries Adv2& \bfseries Adv3& \bfseries Adv4& \bfseries Adv5& \bfseries Adv6& \bfseries Adv7& \bfseries Adv8& \bfseries Adv9& \bfseries Adv10\\
+				\hline
+				\csvreader[
+					no head,table head=\hline,late after line=\\\hline]
+					{graphics/Results/iterative_adversarial_training/alex/accuracies.csv}{}
+					{\csvcoli & \csvcolii & \csvcoliii & \csvcoliv & \csvcolv & \csvcolvi & \csvcolvii & \csvcolviii & \csvcolix & \csvcolx & \csvcolxi & \csvcolxii}
+		\end{tabular}
+		}
+		\caption{Accuracies during training with adversarial loss}
+\end{table}
+
+For the alexnet, the relative difference between the accuracies of defended and undefended loss on the test set is smaller than for the letnet-5, while the relative distance between accuracies on the adversarial sets is greater.
+
 \FloatBarrier
+\clearpage
+
 \subsection{vgg19}
 
 \begin{figure}[h]
@@ -532,6 +579,24 @@ On the other hand, as expected the accuracy of the adversarially trained model o
   \caption{Accuracies of vgg19 in iterative Adversarial Training}
 \end{figure}
 
+\begin{table}[h]
+	\noindent\makebox[\textwidth]{%
+		\begin{tabular}{|c|c|c|c|c|c|c|c|c|c|c|c|}%
+				\hline
+				\bfseries Epoch & \bfseries Test & \bfseries Adv1& \bfseries Adv2& \bfseries Adv3& \bfseries Adv4& \bfseries Adv5& \bfseries Adv6& \bfseries Adv7& \bfseries Adv8& \bfseries Adv9& \bfseries Adv10\\
+				\hline
+				\csvreader[
+					no head,table head=\hline,late after line=\\\hline]
+					{graphics/Results/iterative_adversarial_training/vgg19/accuracies.csv}{}
+					{\csvcoli & \csvcolii & \csvcoliii & \csvcoliv & \csvcolv & \csvcolvi & \csvcolvii & \csvcolviii & \csvcolix & \csvcolx & \csvcolxi & \csvcolxii}
+		\end{tabular}
+		}
+		\caption{Accuracies during training with adversarial loss}
+\end{table}
+
+The accuracy of the adversarially trained vgg-19 on the test set is even (insignificantly) higher than the accuracy of the undefended version.
+Also the differences in the adversarial accuracies are remarkably higher than for the alexnet and the lenet-5.
+
 \FloatBarrier
 \subsection{resnet-50}
 
@@ -542,7 +607,7 @@ The reason for this probably lies in the high complexity of the adversarial loss
 \section{Discussion}
 
 
-For every architecture, Adversarial Training clearly does increase the robustness for FGSM attacks, while maintaining the validation accuracy.
+For every architecture, Adversarial Training clearly does increase the robustness against FGSM attacks, while maintaining the validation accuracy.
 The adversary accuracies are consistently increased for all Adversary Input sets generated during the experiment, which means that the classifiers actually learn to recognize
 Adversary Inputs, and not to 'hide' them from FGSM while still being vulnerable to them.
 It seems like more complex networks are more adversarially robust, although that cannot be concluded by comparing the performance of 3 architectures.\\
