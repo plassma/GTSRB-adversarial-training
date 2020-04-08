@@ -103,6 +103,7 @@ def perform_iterative_adversarial_training(architecture, data_tuple):
 
 
 def iterative_adversarial_training(architecture, data_tuple, use_adv_loss=True, iterations=10, targeted=False):
+    from adversarial_timelapse import AdversarialTimelapse
     xtrain, ytrain, xtest, ytest, result_folder = data_tuple
 
     if use_adv_loss:
@@ -111,6 +112,7 @@ def iterative_adversarial_training(architecture, data_tuple, use_adv_loss=True, 
     model = prepare_model_iat(architecture, xtrain, ytrain, xtest, ytest, use_adv_loss)
 
     report = Report(result_folder, architecture)
+    adversarial_timelapse = AdversarialTimelapse()
 
     for run in range(iterations):
         y_adv_test_target = create_target_vector(ytest) if targeted else None
@@ -118,12 +120,15 @@ def iterative_adversarial_training(architecture, data_tuple, use_adv_loss=True, 
         x_adv_test = get_manipulated_data(xtest, model, "FGSM", None, y_adv_test_target,
                                           result_folder, "advtest", architecture, run)
 
+        adversarial_timelapse.add_adversarials(x_adv_test)
+
         report.evaluate_accuracies(model, xtest, ytest, architecture, "FGSM", run)
 
         train_model_partially(model, xtrain, ytrain, xtest, ytest, use_adv_loss, run + 1)
 
         report.report(model, xtrain)
 
+    adversarial_timelapse.plot_timelapse()
     return report.accuracies
 
 

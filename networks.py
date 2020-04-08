@@ -16,7 +16,7 @@ TEST_PATH = "res\\test\\Final_Test\\Images\\"
 TEST_LABELS_PATH = "res\\test\\Final_Test\\GT-final_test.csv"
 IMG_SIZE = 64
 EPOCHS_TRAINING_STANDARD = 10
-LEARNING_RATE = 0.001
+LEARNING_RATE = 0.0005
 BATCH_SIZE_TRAINING = 32
 
 

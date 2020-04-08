@@ -61,7 +61,7 @@ class Report:
         heatmaps = grad_CAM_plus(model, x[:SAMPLES])
         plt.axis('off')
         for i in range(len(heatmaps)):
-            plt.imsave(os.path.join(result_folder, str(i)), heatmaps[i][0])
+            plt.imsave(os.path.join(result_folder, str(i) + ".png"), heatmaps[i][0])
         plt.axis('on')
 
         self.run += 1

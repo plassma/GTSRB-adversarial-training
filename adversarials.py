@@ -76,6 +76,7 @@ def get_adversarial_loss(model, loss_function):
 
         # Generate adversarial examples
         x_adv = fgsm.generate(model.input, **fgsm_params)
+        x_adv = tf.stop_gradient(x_adv)
 
         # Cross-entropy on the adversarial examples
         preds_adv = model(x_adv)
@@ -177,3 +178,5 @@ def generate_gaussian_noise(x, eps):
         result[i] += np.random.normal(loc=0, scale=eps, size=result[i].shape)
 
     return np.clip(result, 0, 1.0)
+
+
