@@ -444,7 +444,7 @@ Furthermore, a comparison of the appearance of adversarial images generated for 
 
 \section{Results}
 
-\subsection{lenet-5}
+\subsection{Adversarial training of lenet-5}
 
 \begin{figure}[h]
   \begin{subfigure}[b]{0.5\columnwidth}
@@ -479,10 +479,33 @@ Furthermore, a comparison of the appearance of adversarial images generated for 
 		\caption{Accuracies in the last epoch for undefended and adversarial loss}
 \end{table}
 
-
 Figure \ref{fig:exp:iat:lenet-5} shows a comparison of accuracies of a lenet-5 with a regular loss function and an adversarial loss function.
 The most striking difference between the two is, that the accuracy of model with the adversarial loss function does not rise as fast and high as the model with regular loss function's accuracy on the test set.
 On the other hand, as expected the accuracy of the adversarially trained model on the adversarial sets is higher than the accuracy of the regularly trained model.
+
+\begin{figure}[h]
+	\centering
+  \begin{subfigure}[b]{1\columnwidth}
+		\subcaption{Adversarials generated for lenet-5 with adversarial loss function}
+    \label{fig:exp:iat:lenet-5:adversarials:with}
+		\includegraphics[width=\textwidth]{Results/iterative_adversarial_training/lenet-5/lenet-5_with}
+		\vspace{15mm}
+  \end{subfigure}
+  \begin{subfigure}[b]{1\columnwidth}
+		\subcaption{Adversarials generated for lenet-5 without adversarial loss function}
+    \label{fig:exp:iat:lenet-5:adversarials:without}
+		\includegraphics[width=\textwidth]{Results/iterative_adversarial_training/lenet-5/lenet-5_without}
+  \end{subfigure}
+  \caption{Adversarials created for lenet-5}
+	\label{fig:exp:iat:lenet-5:adversarials}
+\end{figure}
+
+
+Figure \ref{fig:exp:iat:lenet-5:adversarials} depicts the appearance of adversarial inputs that can be generated with the parameters used in the adversarial training.
+For comparison, the first column contains the original input, while each additional column shows the adversarial image created for the classifier in the specified epoch.
+As the parameter $\epsilon$ was set to only 0.05, the difference between the original and the perturbed images is hardly perceptible.
+The adversarial images of the remaining architectures can be found in the appendix. %TODO: add ref to appendix
+
 
 
 \begin{figure}[h]
@@ -524,7 +547,7 @@ Therefore the heatmaps for the remaining architectures were omitted in the Resul
 
 \FloatBarrier
 
-\subsection{alexnet}
+\subsection{Adversarial training of alexnet}
 
 \begin{figure}[h]
   \begin{subfigure}[b]{0.5\columnwidth}
@@ -562,7 +585,7 @@ For the alexnet, the relative difference between the accuracies of defended and 
 \FloatBarrier
 \clearpage
 
-\subsection{vgg19}
+\subsection{Adversarial training of vgg19}
 
 \begin{figure}[h]
   \begin{subfigure}[b]{0.5\columnwidth}
@@ -599,11 +622,28 @@ The accuracy of the adversarially trained vgg-19 on the test set is even (insign
 Also the differences in the adversarial accuracies are remarkably higher than for the alexnet and the lenet-5.
 
 \FloatBarrier
-\subsection{resnet-50}
+\subsection{Adversarial training of resnet-50}
 %todo: resnet-50 nicht trainierbar als ergebnis verkaufen? -> in Mail inkludieren
 Unfortunately, the experiment could not be performed for the resnet-50, as the accuracy did not rise above 0.05.
 After correct behavior of the network in training during the first few batches, the loss starts to increase again.
 The reason for this probably lies in the high complexity of the adversarial loss function and memory issues during training.
+
+\subsection{Vulnerability against transferred adversarials}
+
+\begin{table}[h]
+	\noindent\makebox[\textwidth]{%
+		\begin{tabular}{|>{\bfseries}c||c|c|c|c|c|c|}%
+				\hline
+				\bfseries architecture/adv & \bfseries lenet-5/-& \bfseries lenet-5/+ & \bfseries alex/- & \bfseries alex/+ & \bfseries vgg19/- & \bfseries vgg19/+\\
+				\hline\hline
+				\csvreader[
+					head=true,separator=semicolon,table head=\hline,late after line=\\\hline]
+					{graphics/Results/iterative_adversarial_training/cross_robustness_rounded.csv}{}
+					{\csvcoli & \csvcolii & \csvcoliii & \csvcoliv & \csvcolv & \csvcolvi & \csvcolvii}
+		\end{tabular}
+		}
+		\caption{Accuracies on transferred adversarial examples}
+\end{table}
 
 \section{Discussion}
 

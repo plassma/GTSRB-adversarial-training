@@ -9,10 +9,10 @@ def perform_confusion_matrix(architecture, data_tuple, lam):
     EPSILON_BIM = 0.03
     ITERATIONS_BIM = 15
 
-    #confusion_matrix(architecture, data_tuple, EPSILON_BIM, ITERATIONS_BIM, 0, False)
-    #confusion_matrix(architecture, data_tuple, EPSILON_BIM, ITERATIONS_BIM, lam, False)
+    confusion_matrix(architecture, data_tuple, EPSILON_BIM, ITERATIONS_BIM, 0, False)
+    confusion_matrix(architecture, data_tuple, EPSILON_BIM, ITERATIONS_BIM, lam, False)
     confusion_matrix(architecture, data_tuple, EPSILON_BIM, ITERATIONS_BIM, 0, True)
-    #confusion_matrix(architecture, data_tuple, EPSILON_BIM, ITERATIONS_BIM, lam, True)
+    confusion_matrix(architecture, data_tuple, EPSILON_BIM, ITERATIONS_BIM, lam, True)
 
 
 def confusion_matrix(architecture, data_tuple, epsilon, iterations, lam, adversarial):
@@ -129,6 +129,7 @@ def iterative_adversarial_training(architecture, data_tuple, use_adv_loss=True, 
         report.report(model, xtrain)
 
     adversarial_timelapse.plot_timelapse()
+
     return report.accuracies
 
 
