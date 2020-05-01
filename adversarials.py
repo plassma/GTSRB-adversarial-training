@@ -95,7 +95,7 @@ def generate_adversarials_OPA(model, x, y):
     from foolbox.models import KerasModel
 
     advs = []
-    true_labels = []
+    originals = []
 
     keras_model = KerasModel(model, bounds=(0, 1))
 
@@ -104,12 +104,13 @@ def generate_adversarials_OPA(model, x, y):
     print("performing one pixel attack...")
 
     for i in range(len(x)):
-        img = attack(x[i], np.argmax(y[i]))
-        if np.any(img):
+        img = attack(x[i], np.argmax(y[i]), max_pixels=3)
+        if np.any(img) and \
+                np.argmax(model.predict(np.expand_dims(img, 0))) != np.argmax(model.predict(np.expand_dims(x[i], 0))):
             advs.append(img)
-            true_labels.append(y[i])
+            originals.append(x[i])
 
-    return np.array(advs), np.array(true_labels)
+    return np.array(advs), np.array(originals)
 
 
 def generate_adversarials_fgsm_cleverhans(model, x, y_target=None):

@@ -241,7 +241,7 @@ def train_model(model, xtrain, ytrain, xtest, ytest, architecture, lam, adversar
                   validation_data=(xtest, ytest),
                   epochs=EPOCHS_TRAINING_STANDARD,
                   callbacks=[LearningRateScheduler(lr_schedule), checkpoint],
-                  verbose=1)
+                  verbose=0)
 
 
 def train_model_partially(model, xtrain, ytrain, xtest, ytest, adversarial_loss, run):

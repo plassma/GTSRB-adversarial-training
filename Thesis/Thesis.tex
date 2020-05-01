@@ -232,7 +232,7 @@ The $Clip$-function assures, the maximal element(pixel)-wise difference between 
 \subsection{One Pixel Attack}
 
 The Single Pixel Attack is an extremely limited method for finding adversarial examples.
-Instead of limiting the magnitude of the perturbation, its dimensionality is constrained to be 1 ($\norm{\eta}_0=1$).
+Instead of limiting the magnitude of the perturbation, its dimensionality is constrained to be 1 or a very small number ($\norm{\eta}_0=1$).
 Jiawei Su et al. describe a way for finding single pixel modifications that lead to misclassification by differential evolution.
 This algorithm works by maintaining an amount of candidate solutions (400), combining their features and selecting the fittest among the parent and child generations.
 The only information this method requires from the attacked classifier is the output-probabilities, so the One Pixel Attack is a black box attack, and also not reliant on gradients \cite{Jiawei2017}.
@@ -643,6 +643,34 @@ The reason for this probably lies in the high complexity of the adversarial loss
 		\end{tabular}
 		}
 		\caption{Accuracies on transferred adversarial examples}
+		\label{tbl:exp:iat:xvul}
+\end{table}
+
+Table \ref{tbl:exp:iat:xvul} lists the vulnerability of architectures against adversarial inputs that were created for another architecture.
+Each row represents an architecture that was (+) or was not (-) trained using the FGSM-loss, while each column represents the adversarials that were created for the specified architecture.
+Each model that was not adversarially trained clearly is most vulnerable to the adversarials that were created for it, but also performs bad on adversarial examples that were created for other architectures.
+%todo: in conclusion maybe shared gradient is responsible for transferred vul.
+
+\subsection{Vulnerability against the Single Pixel Attack}
+
+As the Single Pixel Attack does not rely on gradients and is independent of the FGSM-attack, the vulnerability against it provides an interesting measure for the adversarial robustness gain of FGSM-adversarial training.
+The robustness against an attack that is independent of the attack that the classifiers were defended against allows conclusions about the improvement of overall adversarial robustness and generalization.\\
+The Single Pixel Attack used for evaluating the general adversarial robustness in this work was constrained to modify at most 3 pixels, and run on the validation-set.
+Table \ref{tbl:exp:iat:xvul} shows for which proportion of the test set an adversarial image could be generated.
+The effects of FGSM adversarial training increased on this fraction vary a lot among the three tested architectures, which complicates conclusions about the general adversarial robustness.
+
+
+\begin{table}
+	\begin{tabular}{|c|c|c|c|}
+		\hline
+							& lenet-5 	& alexnet & vgg19\\
+		\hline
+			before 	& 0.0102 		& 0.0730 	& 0.0136 \\
+			after  	& 0.0034 		& 0.0919 	& 0.0098 \\
+		\hline
+	\end{tabular}
+	\caption{Fraction of test-images for which the Single Pixel Attack could find an adversarial}
+	\label{tbl:exp:iat:xvul}
 \end{table}
 
 \section{Discussion}
@@ -650,6 +678,7 @@ The reason for this probably lies in the high complexity of the adversarial loss
 For every architecture, Adversarial Training clearly does increase the robustness against FGSM attacks, while maintaining the validation accuracy.
 The adversary accuracies are consistently increased for all Adversary Input sets generated during the experiment, which means that the classifiers actually learn to recognize
 Adversary Inputs, and not to 'hide' them from FGSM while still being vulnerable to them.
+In contrast, the vulnerability against the Single Pixel Attack seems to be in no direct relation with FGSM-vulnerability, FGSM-adversarial training seems not to improve generalization, but only robustness against this specific (and probably other, gradient based) attack.
 It seems like more complex networks are more adversarially robust, although that cannot be concluded by comparing the performance of 3 architectures.\\
 
 No significant effects of adversarial training on heatmaps could be examined.
