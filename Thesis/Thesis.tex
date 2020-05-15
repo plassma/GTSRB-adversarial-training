@@ -145,11 +145,14 @@ Defending a DNN against Adversarial Attacks should not only decrease it's vulner
 
 The aim of this work is gaining insights into the decision boundaries of neural networks, the reason for the existence of Adversarial Examples and the effects of Adversarial Defense strategies on the decision boundary of neural networks.
 Therefore, the effects of adversarial defense strategies - Adversarial Training and Input Gradient Regularization are examined addressing the following questions: 
+
+\clearpage
+
 \textbf{To what extent can adversarial defense strategies improve the performance of different convolutional neural networks on adversarial examples?} \\
 
 If adversarial defense strategies could prevent adversarial attacks from successfully finding adversarial examples completely, adversarial examples would only be a small threat to the reliability of CNNs.
 In case adversarial defense strategies cannot fully defend classifiers against adversarial attacks, comparing the success rates of defenses for different network architectures could expose
-interesting insights, which leads to the next research question: \\
+interesting insights, which leads to the next research question:\\
 \textbf{How does network complexity and -depth influence the defensibility against adversarial attacks?} \\
 If adversarial defense strategies improve the accuracy of classifiers on adversarial examples, adversarial attacks should be forced to create examples, that are more similar to their target
 class in order to achieve misclassification.
@@ -443,6 +446,7 @@ Furthermore, a comparison of the appearance of adversarial images generated for 
 \newpage
 
 \section{Results}
+\label{chp:iat:results}
 
 \subsection{Adversarial training of lenet-5}
 
@@ -700,16 +704,14 @@ The results of the attacks (the Adversarial images) are ordered in a matrix.
 Each column has the same attack target, while each row consists of the same original input - the determinant depicts the original inputs.
 A table containing accuracies and defense parameters for each combination of network architecture and defense strategy is given.
 $\alpha$ and $\epsilon$ FGSM stand for the weight of the adversarial loss and the maximal perturbation of Adversarial Inputs in the adversarial training loss function (Equation \ref{eq:adv_loss}), while $\lambda$ denotes the regularization-coefficient (Equation \ref{eq:gradreg}). $\lambda$ was chosen heuristically and set to a value that did not decrease the validation accuracy much, while having a decreasing effect on the Input Gradient.
-Additionally, the average and maximal input gradient of the validation-set is given.
-All combinations of architecture and defense strategy where trained for 10 epochs, except the lenet-5 which was trained for 20 epochs.
+Additionally, the average and maximal input gradient of the adversarials created for the validation-set is given.
+All combinations of architecture and defense strategy where trained for 10 epochs, except for the lenet-5 which was trained for 20 epochs.
 The learning rate was 0.001 for the first 9 epochs and 0.0001 afterward for all combinations.
-
 
 \section{Results}
 
 The following sections contain the results of the experiment, each heading to a different combination of model and defense strategy.
 The images were selected randomly from the test set, simply the first image of the desired original class, that got classified correctly after the adversarial training was used as original input for the targeted attacks that were performed.
-
 
 \subsection{lenet-5 with no defenses implemented}
 
@@ -877,8 +879,11 @@ The images were selected randomly from the test set, simply the first image of t
   \caption{Targeted Basic Iterative Method on lenet-5 with Adversarial Training and Input Gradient Regularization}
   \label{fig:exp:cm:lenet-5_gradreg_adv}
 \end{figure}
-\clearpage
 
+The adversarials generated for the undefended version of the lenet-5 (Fig. \ref{fig:exp:cm:lenet-5}) do not resemble their target label, the perturbations look like random noise.
+The adversarials for the defended versions, on the other hand (\ref{fig:exp:cm:lenet-5_gradreg}, Fig. \ref{fig:exp:cm:lenet-5_adv}, \ref{fig:exp:cm:lenet-5_gradreg}) show recognizable similarities with their target labels.
+
+\clearpage
 
 \subsection{Alexnet with no defenses implemented}
 
@@ -960,6 +965,7 @@ The images were selected randomly from the test set, simply the first image of t
     \label{fig:exp:cm:alex_gradreg:different}
   \end{subfigure}
   \caption{Targeted Basic Iterative Method on alexnet with Input Gradient Regularization}
+	\label{fig:exp:cm:alex_gradreg}
 \end{figure}
 \clearpage
 
@@ -1000,6 +1006,7 @@ The images were selected randomly from the test set, simply the first image of t
     \label{fig:exp:cm:alex_adv:different}
   \end{subfigure}
   \caption{Targeted Basic Iterative Method on alexnet with Adversarial Training}
+		\label{fig:exp:cm:alex_adv}
 \end{figure}
 \clearpage
 
@@ -1042,8 +1049,12 @@ The images were selected randomly from the test set, simply the first image of t
   \caption{Targeted Basic Iterative Method on alexnet with Adversarial Training and Input Gradient Regularization}
 	\label{fig:exp:cm:alex_gradreg_adv}
 \end{figure}
-\clearpage
 
+
+The adversarials generated for the undefended version of the alexnet (Fig. \ref{fig:exp:cm:alex}) already exhibit great similarities to their target labels.
+The adversarials for the defended versions (\ref{fig:exp:cm:alex_gradreg}, Fig. \ref{fig:exp:cm:alex_adv}, \ref{fig:exp:cm:alex_gradreg_adv}), appear even more similar to their target labels.
+
+\clearpage
 
 \subsection{vgg19 with no defenses implemented}
 
@@ -1213,141 +1224,19 @@ The images were selected randomly from the test set, simply the first image of t
   \caption{Targeted Basic Iterative Method on vgg19 with Input Gradient Regularization and Adversarial Training}
   \label{fig:exp:cm:vgg19_gradreg_adv}
 \end{figure}
-\clearpage
 
-\subsection{ResNet50 with no defenses implemented}
-
-\begin{table}[h]
-  \centering
-  \begin{tabular}{ll}
-    \toprule
-			Parameter			& Value   \\
-    \midrule
-			$\lambda$								& 0				\\
-			$\alpha$								& 0				\\
-			$\epsilon$ FGSM					& 0.05		\\
-			Epochs training					& 10			\\
-			
-			Validation Accuracy			& 0.978		\\ 
-			Adv Accuracy - FGSM			& 0.723		\\
-			%Adv Accuracy - SPA			& 0.898		\\
-			
-			Avg Input Gradient			& 5.456		\\
-			Max Input Gradient			& 8152.976\\
-    \bottomrule
-  \end{tabular}
-\end{table}
-
-
-\begin{figure}[h]
-  \begin{subfigure}[b]{0.5\columnwidth}
-		\centering
-    \includegraphics[width=\textwidth]{Results/confusion_matrix/resnet50/similar}
-    \subcaption{Targeted BIM for similar Images}
-    \label{fig:exp:cm:resnet50:similar}
-  \end{subfigure}
-  \begin{subfigure}[b]{0.5\columnwidth}
-		\centering
-    \includegraphics[width=\textwidth]{Results/confusion_matrix/resnet50/different}
-    \subcaption{Targeted BIM for different Images}
-    \label{fig:exp:cm:resnet50:different}
-  \end{subfigure}
-  \caption{Targeted Basic Iterative Method on ResNet50 with no defenses}
-  \label{fig:exp:cm:resnet50}
-\end{figure}
-\clearpage
-
-\subsection{ResNet50 with Input Gradient Regularization}
-
-\begin{table}[h]
-  \centering
-  \begin{tabular}{ll}
-    \toprule
-			Parameter			& Value   \\
-    \midrule
-			$\lambda$								& 0.002				\\
-			$\alpha$								& 0				\\
-			$\epsilon$ FGSM					& 0.05		\\
-			Epochs training					& 10			\\
-			
-			Validation Accuracy			& 0.984		\\ 
-			Adv Accuracy - FGSM			& 0.763		\\
-			%Adv Accuracy - SPA			& 0.898		\\
-			
-			Avg Input Gradient			& 1.004	\\
-			Max Input Gradient			& 871.882\\
-    \bottomrule
-  \end{tabular}
-\end{table}
-
-
-\begin{figure}[h]
-  \begin{subfigure}[b]{0.5\columnwidth}
-		\centering
-    \includegraphics[width=\textwidth]{Results/confusion_matrix/resnet50_gradreg/similar}
-    \subcaption{Targeted BIM for similar Images}
-    \label{fig:exp:cm:resnet50_gradreg:similar}
-  \end{subfigure}
-  \begin{subfigure}[b]{0.5\columnwidth}
-		\centering
-    \includegraphics[width=\textwidth]{Results/confusion_matrix/resnet50_gradreg/different}
-    \subcaption{Targeted BIM for different Images}
-    \label{fig:exp:cm:resnet50_gradreg:different}
-  \end{subfigure}
-  \caption{Targeted Basic Iterative Method on ResNet50 with Input Gradient Regularization}
-  \label{fig:exp:cm:resnet50_gradreg}
-\end{figure}
-\clearpage
-
-
-\subsection{ResNet50 with Adversarial Training}
-
-\begin{table}[h]
-  \centering
-  \begin{tabular}{ll}
-    \toprule
-			Parameter			& Value   \\
-    \midrule
-			$\lambda$								& 0				\\
-			$\alpha$								& 0.5				\\
-			$\epsilon$ FGSM					& 0.05		\\
-			Epochs training					& 10			\\
-			
-			Validation Accuracy			& 0.902		\\ 
-			Adv Accuracy - FGSM			& 0.634		\\
-			%Adv Accuracy - SPA			& 0.898		\\
-			
-			Avg Input Gradient			& 13.358	\\
-			Max Input Gradient			& 3202.522\\
-    \bottomrule
-  \end{tabular}
-\end{table}
-
-
-\begin{figure}[h]
-  \begin{subfigure}[b]{0.5\columnwidth}
-		\centering
-    \includegraphics[width=\textwidth]{Results/confusion_matrix/resnet50_adv/similar}
-    \subcaption{Targeted BIM for similar Images}
-    \label{fig:exp:cm:resnet50_gradreg_adv:similar}
-  \end{subfigure}
-  \begin{subfigure}[b]{0.5\columnwidth}
-		\centering
-    \includegraphics[width=\textwidth]{Results/confusion_matrix/resnet50_adv/different}
-    \subcaption{Targeted BIM for different Images}
-    \label{fig:exp:cm:resnet50_adv:different}
-  \end{subfigure}
-  \caption{Targeted Basic Iterative Method on ResNet50 with Adversarial Training}
-  \label{fig:exp:cm:resnet50_adv}
-\end{figure}
+The distinct part of the adversarials (\ref{fig:exp:cm:vgg19:different}) generated for the undefended version of the vgg19 is already optically similar to their target labels, while the perturbations in the similar images (\ref{fig:exp:cm:vgg19:similar}) follow no obvious pattern.
+The noise induced by the adversarial attack appears finer in granularity than for the previous two architectures.
+Input gradient regularization (\ref{fig:exp:cm:vgg19_gradreg}) seems no to have a big impact on the appearance of adversarial inputs generated by FGSM for the vgg19.
+Adversarial training, seems to have the biggest impact on the appearance of the adversarials generated for the vgg19 (\ref{fig:exp:cm:vgg19_adv}, \ref{fig:exp:cm:vgg19_gradreg_adv}), and forces the FGSM to produce adversarials that look very similar to their target labels.
 
 \clearpage
 
 \section{Discussion}
 
-Adversarial defense strategies clearly increase the comprehensibility of Adversarial Inputs for lenet-5, alexnet and vgg19.
+Adversarial defense strategies clearly increase the similarity of Adversarial Inputs to their target for lenet-5, alexnet and vgg19, and thus the comprehensibility for the classifier's decision on that inputs.
 Adversarial Inputs for defended classifiers are much more likely to resemble their target label than Adversarials for undefended classifiers.
-This effect can be particularly well observed when comparing the confusion-matrices for an alexnet with no defenses (\ref{fig:exp:cm:alex}) to the one of an alexnet with a combination of two defense techniques (\ref{fig:exp:cm:alex_gradreg_adv}).
+This effect can be particularly well observed when comparing the adversarial-example-matrices for an alexnet with no defenses (Fig. \ref{fig:exp:cm:alex}) to the one of an alexnet with a combination of two defense techniques (Fig. \ref{fig:exp:cm:alex_gradreg_adv}).
 The Adversarials for the defended version almost fully resemble their target, and contain less random artifacts than the results for the undefended one.
 For all versions of the ResNet50 the strongest observable difference between the original and the perturbed inputs are fine-grained artifacts, the defense strategies made almost no difference.
 \\
@@ -1361,8 +1250,35 @@ Input Gradient Regularization was able to decrease the Input Gradient for all co
 
 \chapter{Conclusion and Future Work}
 
-Adversarial defenses do not only increase the accuracy for inputs created with Adversarial Attacks, but also the comprehensibility for the classifiers decision on that modified data. 
-In the experiments Adversarial Training was more successful for both the accuracy and comprehensibility of Adversarials than Input Gradient Regularization.
+This chapter will summarize the results of this work regarding the research questions, and give an outlook on possible future work for investigating the effects of adversarial defense strategies on the decision boundaries of convolutional neural networks.\\
+
+\textbf{To what extent can adversarial defense strategies improve the performance of different convolutional neural networks on adversarial examples?} \\
+This question can be answered for the three architectures lenet-5, alexnet and the vgg19 and the used dataset, more details are provided in Chapter \ref{chp:iat:results}.
+Adversarial training with the FGSM could improve the performance on adversarial inputs by a significant amount, but the performance on adversarial inputs after adversarial training is still well below the performance on unperturbed inputs.
+Additionally, performance improvements were only observed for the method the classifiers were trained against.
+The effects of FGSM training on the performance on images created with the Single Pixel attack were mixed, for the lenet-5 and the vgg19 the single pixel attack could find fewer examples after adversarial training, while for the alexnet, the attack found even more adversarials afterward.
+\\
+\textbf{How does network complexity and -depth influence the defensibility against adversarial attacks?}\\
+This question can be answered for the for the architectures experiments could successfully be performed with and the defensibility against the FGSM attack:
+
+The deeper and more complex the trained classifier was, the higher was it's defensibility against adversarial attacks.
+For the lenet-5, adversarial training decreased the validation accuracy.
+This may be because the hypothesis space of the lenet-5 is not complex enough to express an input-output mapping less vulnerable to adversarial attacks.\\
+
+\textbf{What effects do adversarial defense strategies have on the appearance of adversarial examples generated by adversarial attacks?}\\
+As expected, adversarial training increased the apparent similarity between adversarials generated by the FGSM with their targets.
+Because the defended classifiers were not as vulnerable to adversarials with less interpretable perturbations anymore, the FGSM was forced to modify the inputs in a way that made them more similar with their target label.\\
+
+\textbf{Do adversarial defense strategies increase the smoothness of the decision boundary of neural networks?}\\
+The answer to this question is different for different defense strategies.
+For measuring and comparing the smoothness of the decision boundary, the input gradient (average and maximal) for the test set was calculated.
+FGSM adversarial training increased the input gradient on the test set for all architectures.
+Input gradient regularization had the opposite effect.
+Although the two strategies have different effects on the smoothness of the decision boundary, both could cause an improvement of performance on adversarial inputs.
+
+
+Adversarial defenses do not only increase the accuracy for inputs created with Adversarial Attacks, but also the similarity of Adversarial Inputs created for them with the FGSM. 
+In the experiments Adversarial Training was more successful for both the accuracy an adversarials, and the similarity between adversarial and target than Input Gradient Regularization.
 The reason for this probably lies in the way those defense-strategies work: input gradient regularization prevents small perturbations from changing the outcome by make predictions as stable as possible - the magnitude of changes need to grow to achieve a higher magnitude of change in the output.
 Adversarial Training on the other hand is more sensitive for pockets in the decision boundary.
 If a 'pocket' (or discontinuity in the input-output mapping) close ($\epsilon$) to the input images can be found, it will occur in the adversarial loss function, and force the training process to eliminate it.
