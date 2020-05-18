@@ -112,7 +112,7 @@ def iterative_adversarial_training(architecture, data_tuple, use_adv_loss=True, 
     model = prepare_model_iat(architecture, xtrain, ytrain, xtest, ytest, use_adv_loss)
 
     report = Report(result_folder, architecture)
-    adversarial_timelapse = AdversarialTimelapse()
+    adversarial_timelapse = AdversarialTimelapse(xtest)
 
     for run in range(iterations):
         y_adv_test_target = create_target_vector(ytest) if targeted else None
